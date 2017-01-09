@@ -1,0 +1,13 @@
+mqtt:
+    host: 
+    port: 
+    user: 
+    password: 
+doors:
+    -
+        id: 
+        relay:
+        state:
+        state_topic: "home-assistant/cover"
+        command_topic: "home-assistant/cover/set"
+
