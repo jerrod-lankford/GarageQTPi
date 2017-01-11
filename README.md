@@ -68,6 +68,7 @@ So far this has proved to be relatively stable.
 ### Prereqs 
 * Raspberry pi 3 running rasbian jessie
 * Python 2.7.x
+* pip (python 2 pip)
 
 ### Installation
 1. `git clone https://github.com/Jerrkawz/GarageQTPi.git`
