@@ -65,8 +65,11 @@ So far this has proved to be relatively stable.
 
 ## Software
 
-Prereqs: Raspberry pi 3 running rasbian jessie. There are many guides for setting this up so I'll leave it out.
+### Prereqs 
+* Raspberry pi 3 running rasbian jessie
+* Python 2.7.x
 
+### Installation
 1. `git clone https://github.com/Jerrkawz/GarageQTPi.git`
 2. `pip install -r requirements.txt`
 3. edit the configuration.yaml to set up mqtt (See below)
