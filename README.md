@@ -87,6 +87,7 @@ Bruh Automation: https://www.youtube.com/watch?v=AsDHEDbyLfg
 HomeAssistant MQTT Cover: https://home-assistant.io/components/cover.mqtt/
 
 Screenshot:
+
 ![Home assistant ui][2]
 
 ## API Reference
