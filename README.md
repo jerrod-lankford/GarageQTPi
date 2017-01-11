@@ -11,24 +11,18 @@ then you need to use an MQTT cover component to interface with the pi.
 ## Hardware
 
 1. Raspberry pi 3
-   CanaKits come with everything you need and definitely the way to go if you aren't sure.
-   
-   [Canakit with everything ~$75](https://www.amazon.com/CanaKit-Raspberry-Complete-Starter-Kit/dp/B01C6Q2GSY)
-   
-   [Canakit with PS/case ~$50](https://www.amazon.com/CanaKit-Raspberry-Clear-Power-Supply/dp/B01C6EQNNK)
+   * [Canakit with everything ~$75](https://www.amazon.com/CanaKit-Raspberry-Complete-Starter-Kit/dp/B01C6Q2GSY)
+   * [Canakit with PS/case ~$50](https://www.amazon.com/CanaKit-Raspberry-Clear-Power-Supply/dp/B01C6EQNNK)
 2. Relay
-
-   [Sainsmart 2-channel](https://www.amazon.com/gp/product/B0057OC6D8)
+   * [Sainsmart 2-channel](https://www.amazon.com/gp/product/B0057OC6D8)
 3. Magnetic switches
-
-   [Magnetic Switches](https://www.amazon.com/gp/product/B0009SUF08)
+   * [Magnetic Switches](https://www.amazon.com/gp/product/B0009SUF08)
 4. Additional wires/wire nuts. 
-    a. 14 gauge solid copper wire for garage motor wiring
-    b. 20-22 gauge copper wire for magnetic switch wiring
-    c. jumper wiries for GPIO pins
+    * 14 gauge solid copper wire for garage motor wiring
+    * 20-22 gauge copper wire for magnetic switch wiring
+    * jumper wiries for GPIO pins
 5. Mounting Hardware. 
-
-See installation section for mounting ideas.
+    * See installation section for mounting ideas.
 
 Total cost: ~75-$100. Cheaper if you already have some raspberry pi parts
 
