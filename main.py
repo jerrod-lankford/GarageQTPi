@@ -16,6 +16,10 @@ def update_state(value, topic):
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
     print "Connected with result code: %s" % mqtt.connack_string(rc)
+    for config in CONFIG['doors']:
+        command_topic = config['command_topic']
+        print "Listening for commands on %s" % command_topic
+        client.subscribe(command_topic)
 
 # Execute the specified command for a door
 def execute_command(door, command):
@@ -46,32 +50,33 @@ client.username_pw_set(user, password=password)
 client.connect(host, port, 60)
 ### SETUP END ###
 
-# Create door objects and create callback functions
-for doorCfg in CONFIG['doors']:
-    command_topic = doorCfg['command_topic']
-    state_topic = doorCfg['state_topic']
+### MAIN LOOP ###
+if __name__ == "__main__":
+    # Create door objects and create callback functions
+    for doorCfg in CONFIG['doors']:
+        command_topic = doorCfg['command_topic']
+        state_topic = doorCfg['state_topic']
 
-    client.subscribe(command_topic)
 
-    door = GarageDoor(doorCfg)
+        door = GarageDoor(doorCfg)
 
-    # Callback per door that passes a reference to the door
-    def on_message(client, userdata, msg, door=door):
-        execute_command(door, str(msg.payload))
+        # Callback per door that passes a reference to the door
+        def on_message(client, userdata, msg, door=door):
+            execute_command(door, str(msg.payload))
 
-    # Callback per door that passes the doors state topic
-    def on_state_change(value, topic=state_topic):
-        update_state(value, topic)
+        # Callback per door that passes the doors state topic
+        def on_state_change(value, topic=state_topic):
+            update_state(value, topic)
 
-    client.message_callback_add(command_topic, on_message)
+        client.message_callback_add(command_topic, on_message)
 
-    # You can add additional listeners here and they will all be executed when the door state changes
-    door.onStateChange.addHandler(on_state_change)
+        # You can add additional listeners here and they will all be executed when the door state changes
+        door.onStateChange.addHandler(on_state_change)
 
-    # Publish initial door state
-    client.publish(state_topic, door.state)
+        # Publish initial door state
+        client.publish(state_topic, door.state)
 
-# Main loop
-client.loop_forever()
+    # Main loop
+    client.loop_forever()
 
 
