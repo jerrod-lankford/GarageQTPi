@@ -18,7 +18,7 @@ class GarageDoor(object):
         self.relay_pin = config['relay']
         self.state_pin = config['state']
         self.id = config['id']
-        self.mode = int(config['state_mode'] == 'normally_closed')
+        self.mode = int(config.get('state_mode') == 'normally_closed')
 
         # Setup
         self._state = None
