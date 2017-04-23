@@ -132,6 +132,21 @@ doors:
         command_topic: "home-assistant/cover/right/set"
 ```
 
+### Optional configuration
+So far there is one optional configuration parameter to flip the state pin of the magnetic switch in the invent of a different wiring schema. This is a per door configuration option like:
+```
+doors:
+    -
+        id: 'left'
+        relay: 23
+        state: 17
+        state_mode: normally_closed
+        state_topic: "home-assistant/cover/left"
+        command_topic: "home-assistant/cover/left/set"
+```
+
+This configuration parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+        
 ## Contributors
 
 I wrote the code myself but as far as hardware/wiring and motivation goes I was heavily insipired by Andrew Shilliday.

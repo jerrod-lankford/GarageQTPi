@@ -53,10 +53,13 @@ class GarageDoor(object):
     # State is a read only property that actually gets its value from the pin
     @property
     def state(self):
+        # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
+        # and vice versa for normally open
+        mode = int(config['state_mode'] == 'normally_closed')
         state = GPIO.input(self.state_pin)
-        if  state == 0:
+        if  state == mode:
             return 'closed'
-        elif state == 1:
+        else:
             return 'open'
 
     # Mimick a button press by switching the GPIO pin on and off quickly
