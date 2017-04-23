@@ -11,7 +11,7 @@ print "Welcome to GarageBerryPi!"
 def update_state(value, topic):
     print "State change triggered: %s -> %s" % (topic, value)
 
-    client.publish(topic, value)
+    client.publish(topic, value, retain=True)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         door.onStateChange.addHandler(on_state_change)
 
         # Publish initial door state
-        client.publish(state_topic, door.state)
+        client.publish(state_topic, door.state, retain=True)
 
     # Main loop
     client.loop_forever()
