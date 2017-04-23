@@ -18,6 +18,7 @@ class GarageDoor(object):
         self.relay_pin = config['relay']
         self.state_pin = config['state']
         self.id = config['id']
+        self.mode = int(config['state_mode'] == 'normally_closed')
 
         # Setup
         self._state = None
@@ -55,9 +56,8 @@ class GarageDoor(object):
     def state(self):
         # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
         # and vice versa for normally open
-        mode = int(config['state_mode'] == 'normally_closed')
         state = GPIO.input(self.state_pin)
-        if  state == mode:
+        if  state == self.mode:
             return 'closed'
         else:
             return 'open'
