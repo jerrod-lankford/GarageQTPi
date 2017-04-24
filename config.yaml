@@ -8,6 +8,7 @@ doors:
         id: 
         relay:
         state:
+#        state_mode: normally_closed #defaults to normally open, uncomment to switch
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set"
 
