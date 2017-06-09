@@ -58,7 +58,7 @@ class GarageDoor(object):
         if not self.is_opening():
             if self.is_closing():
                 self.__press()  #stop first
-				time.sleep(SHORT_WAIT)
+                time.sleep(SHORT_WAIT)
                 self.done_closing = datetime.datetime.now()
             self.__press()
             self.done_opening = datetime.datetime.now() + datetime.timedelta(seconds=self.closing_delay)
@@ -67,7 +67,7 @@ class GarageDoor(object):
         if not self.is_closing():
             if self.is_opening():
                 self.__press()  #stop first
-				time.sleep(SHORT_WAIT)
+                time.sleep(SHORT_WAIT)
                 self.done_opening = datetime.datetime.now()
             self.__press()
             self.done_closing = datetime.datetime.now() + datetime.timedelta(seconds=self.closing_delay)

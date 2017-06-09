@@ -124,14 +124,14 @@ doors:
         state: 17
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
-		closing_delay: 10
+        closing_delay: 10
     -
         id: 'right'
         relay: 24
         state: 18
         state_topic: "home-assistant/cover/right"
         command_topic: "home-assistant/cover/right/set"
-		closing_delay: 10
+        closing_delay: 10
 ```
 
 ### Optional configuration
@@ -145,7 +145,7 @@ doors:
         state_mode: normally_closed
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
-		closing_delay: 10
+        closing_delay: 10
 ```
 
 This configuration parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
