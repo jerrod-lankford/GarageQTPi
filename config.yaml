@@ -11,5 +11,5 @@ doors:
 #        state_mode: normally_closed #defaults to normally open, uncomment to switch
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set"
-		closing_delay: 10	#expected time to fully close the door in seconds
+        closing_delay: 10	#expected time to fully close the door in seconds
 
