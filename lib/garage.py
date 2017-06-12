@@ -73,7 +73,7 @@ class GarageDoor(object):
             self.done_closing = datetime.datetime.now() + datetime.timedelta(seconds=self.closing_delay)
 
     def stop(self):
-        if self.is_closing() or self.is_opening()
+        if self.is_closing() or self.is_opening():
             self.__press()
             self.done_closing = datetime.datetime.now()
             self.done_opening = datetime.datetime.now()
@@ -84,9 +84,9 @@ class GarageDoor(object):
         # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
         # and vice versa for normally open
         state = GPIO.input(self.state_pin)
-        if self.is_closing()
+        if self.is_closing():
             return 'closing'
-        else if state == self.mode:
+        elif state == self.mode:
             return 'closed'
         else:
             return 'open'
