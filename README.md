@@ -72,7 +72,7 @@ So far this has proved to be relatively stable.
 
 ### Installation
 1. `git clone https://github.com/Jerrkawz/GarageQTPi.git`
-2. `bash install.sh`
+2. `pip install -r requirements.txt`
 3. edit the configuration.yaml to set up mqtt (See below)
 4. `python main.py` 
 5. To start the server on boot run `sudo bash autostart_systemd.sh`
@@ -144,7 +144,7 @@ doors:
 ```
 
 The state_mode parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
-The invert_relay parameter defaults to false and isn't necessary unless you want to change it to true
+The invert_relay parameter defaults to false and isn't necessary unless you want to set the relay pin to be powered by default
         
 ## Contributors
 

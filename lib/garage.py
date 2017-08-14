@@ -79,4 +79,3 @@ class GarageDoor(object):
             time.sleep(SHORT_WAIT)
             self.onStateChange.fire(self.state)
 
-    
