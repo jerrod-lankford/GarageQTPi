@@ -9,6 +9,7 @@ doors:
         relay:
         state:
 #        state_mode: normally_closed #defaults to normally open, uncomment to switch
+#        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set"
 
