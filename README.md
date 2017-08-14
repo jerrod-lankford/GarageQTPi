@@ -130,7 +130,7 @@ doors:
 ```
 
 ### Optional configuration
-So far there is one optional configuration parameter to flip the state pin of the magnetic switch in the invent of a different wiring schema. This is a per door configuration option like:
+So far there are two optional configuration parameters. One to flip the state pin of the magnetic switch in the invent of a different wiring schema. The second one to filp the relay logic. This is a per door configuration option like:
 ```
 doors:
     -
@@ -138,11 +138,13 @@ doors:
         relay: 23
         state: 17
         state_mode: normally_closed
+        invert_relay: true
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
 ```
 
-This configuration parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+The state_mode parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+The invert_relay parameter defaults to false and isn't necessary unless you want to change it to true
         
 ## Contributors
 

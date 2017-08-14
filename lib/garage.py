@@ -19,20 +19,22 @@ class GarageDoor(object):
         self.state_pin = config['state']
         self.id = config['id']
         self.mode = int(config.get('state_mode') == 'normally_closed')
+        self.invert_relay = bool(config.get('invert_relay'))
 
         # Setup
         self._state = None
         self.onStateChange = EventHook()
 
         # Set relay pin to output, state pin to input, and add a change listener to the state pin
+        GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.relay_pin, GPIO.OUT)
         GPIO.setup(self.state_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(self.state_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
 
 
-        # Set default relay state to true (off)
-        GPIO.output(self.relay_pin, True)
+        # Set default relay state to false (off)
+        GPIO.output(self.relay_pin, self.invert_relay)
 
     # Release rpi resources
     def __del__(self):
@@ -64,9 +66,9 @@ class GarageDoor(object):
 
     # Mimick a button press by switching the GPIO pin on and off quickly
     def __press(self):
-        GPIO.output(self.relay_pin, False)
+        GPIO.output(self.relay_pin, not self.invert_relay)
         time.sleep(SHORT_WAIT)
-        GPIO.output(self.relay_pin, True)
+        GPIO.output(self.relay_pin, self.invert_relay)
 
    
     # Provide an event for when the state pin changes
