@@ -1,0 +1,11 @@
+[Unit]
+Description=GarageQTPi
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+ExecStart=/usr/bin/python /home/pi/GarageQTPi/main.py
+
+[Install]
+WantedBy=multi-user.target
