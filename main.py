@@ -33,7 +33,7 @@ def execute_command(door, command):
     else:
         print "Invalid command: %s" % command
 
-with open("config.yaml", 'r') as ymlfile:
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     CONFIG = yaml.load(ymlfile)
 
 ### SETUP MQTT ###
