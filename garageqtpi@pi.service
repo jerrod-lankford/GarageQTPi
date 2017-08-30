@@ -4,6 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
+Restart=always
+RestartSec=3
 User=%i
 ExecStart=/usr/bin/python /home/pi/GarageQTPi/main.py
 
