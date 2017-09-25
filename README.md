@@ -75,10 +75,7 @@ So far this has proved to be relatively stable.
 2. `pip install -r requirements.txt`
 3. edit the configuration.yaml to set up mqtt (See below)
 4. `python main.py` 
-5. To start the server on boot, copy this into /etc/rc.local: `(sleep 30; cd /home/pi/GarageQTPi; python main.py)&`
-
-Note: The sleep 30 is my hack to wait until the pi has an ip address so the mqtt connection doesn't fail.
-I would like to write this as a daemon eventually and use a real startup service but until then. (or if someone wants to send a PR :) )
+5. To start the server on boot run `sudo bash autostart_systemd.sh`
 
 ## MQTT setup
 I won't try to butcher an mqtt setup guide but will instead link you to some other resources:
@@ -133,7 +130,7 @@ doors:
 ```
 
 ### Optional configuration
-So far there is one optional configuration parameter to flip the state pin of the magnetic switch in the invent of a different wiring schema. This is a per door configuration option like:
+So far there are two optional configuration parameters. One to flip the state pin of the magnetic switch in the invent of a different wiring schema. The second one to filp the relay logic. This is a per door configuration option like:
 ```
 doors:
     -
@@ -141,11 +138,13 @@ doors:
         relay: 23
         state: 17
         state_mode: normally_closed
+        invert_relay: true
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
 ```
 
-This configuration parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+The state_mode parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+The invert_relay parameter defaults to false and isn't necessary unless you want to set the relay pin to be powered by default
         
 ## Contributors
 
