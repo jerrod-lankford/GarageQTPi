@@ -24,9 +24,9 @@ def on_connect(client, userdata, rc):
 # Execute the specified command for a door
 def execute_command(door, command):
     print "Executing command %s for door %s" % (command, door.id)
-    if command == "OPEN":
+    if command == "OPEN" and door.state == 'closed':
         door.open()
-    elif command == "CLOSE":
+    elif command == "CLOSE" and door.state == 'open':
         door.close()
     elif command == "STOP":
         door.stop()

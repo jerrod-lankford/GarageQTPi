@@ -45,10 +45,12 @@ class GarageDoor(object):
     # changes or do things differently depending on the intended action
 
     def open(self):
-        self.__press()
+        if self.state == 'closed':
+            self.__press()
 
     def close(self):
-        self.__press()
+        if self.state == 'open':
+            self.__press()
 
     def stop(self):
         self.__press()
