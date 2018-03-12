@@ -43,6 +43,7 @@ The code is essentially mimicking a button press by switching the relay on and o
 The two rightmost white wires are for the collision detection sensors. So I removed the two leftmost wires, wirenutted 3 solid 14 gauge wires together (the button wire, my relay wire, and then one wire to go to the garage door opener) two times for each of the two wires.
 
 <img src="http://imgur.com/GKPQFwy.png" width="500">
+
 ### Magnetic switch wiring
 I ran the magnetic switch wires along the same path as the sensor wires, stapled them to the wall, and stuck the magnetic switches to the door and wall as close as I could get them. As noted above wire up the COM (common) to the GND pin and the NO (normally open) to the GPIO pin.
 
