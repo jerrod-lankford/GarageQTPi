@@ -33,6 +33,8 @@ Copyright (c) 2013 andrewshilliday
 
 Note: The switches I linked have 3 terminals (COM, NO, NC). You should wire up COM to GND and NO to the GPIO.
 
+**Important: The above diagram is outdated, pin 21 may actually be pin 27. Consult your raspberry pi's pin diagram**
+
 ### Relay wiring
 **IMPORTANT: You shoud always consult with a manual before wiring**
 
