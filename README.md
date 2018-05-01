@@ -127,7 +127,7 @@ doors:
     -
         id: 'right'
         relay: 24
-        state: 18
+        state: 27
         state_topic: "home-assistant/cover/right"
         command_topic: "home-assistant/cover/right/set"
 ```
