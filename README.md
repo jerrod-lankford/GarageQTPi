@@ -28,7 +28,8 @@ Total cost: ~75-$100. Cheaper if you already have some raspberry pi parts
 
 ## Wiring/Installation
 
-![Wiring diagram][1]
+![alt text](WiringDiagram.png)
+
 Copyright (c) 2013 andrewshilliday
 
 Note: The switches I linked have 3 terminals (COM, NO, NC). You should wire up COM to GND and NO to the GPIO.
@@ -92,7 +93,7 @@ HomeAssistant MQTT Cover: https://home-assistant.io/components/cover.mqtt/
 
 Screenshot:
 
-![Home assistant ui][2]
+![Home assistant ui][1]
 
 ## API Reference
 
@@ -154,5 +155,4 @@ The invert_relay parameter defaults to false and isn't necessary unless you want
 I wrote the code myself but as far as hardware/wiring and motivation goes I was heavily insipired by Andrew Shilliday.
 As you can tell I borrowed some images from him. If you find my guide hard to read, need a web gui, or just want a second reference definitely check out his repo: https://github.com/andrewshilliday/garage-door-controller
 
-[1]: http://i.imgur.com/48bpyG0.png
-[2]: http://imgur.com/obgvgKJ.png
+[1]: http://imgur.com/obgvgKJ.png
