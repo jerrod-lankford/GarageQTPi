@@ -40,7 +40,7 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'
 user = CONFIG['mqtt']['user']
 password = CONFIG['mqtt']['password']
 host = CONFIG['mqtt']['host']
-port = CONFIG['mqtt']['port']
+port = int(CONFIG['mqtt']['port'])
 
 client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol="MQTTv31")
 
