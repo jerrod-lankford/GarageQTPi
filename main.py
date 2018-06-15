@@ -42,7 +42,7 @@ password = CONFIG['mqtt']['password']
 host = CONFIG['mqtt']['host']
 port = int(CONFIG['mqtt']['port'])
 
-client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol="MQTTv31")
+client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=3)
 
 client.on_connect = on_connect
 
