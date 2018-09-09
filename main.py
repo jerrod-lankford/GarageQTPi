@@ -2,6 +2,7 @@ import os
 import binascii
 import yaml
 import paho.mqtt.client as mqtt
+import re
 
 from lib.garage import GarageDoor
 
@@ -23,7 +24,7 @@ def on_connect(client, userdata, rc):
 
 # Execute the specified command for a door
 def execute_command(door, command):
-    print "Executing command %s for door %s" % (command, door.id)
+    print "Executing command %s for door %s" % (command, door.name)
     if command == "OPEN" and door.state == 'closed':
         door.open()
     elif command == "CLOSE" and door.state == 'open':
@@ -41,6 +42,11 @@ user = CONFIG['mqtt']['user']
 password = CONFIG['mqtt']['password']
 host = CONFIG['mqtt']['host']
 port = int(CONFIG['mqtt']['port'])
+discovery = bool(CONFIG['mqtt'].get('discovery'))
+if 'discovery_prefix' not in CONFIG['mqtt']:
+    discovery_prefix = 'homeassistant'
+else:
+    discovery_prefix = CONFIG['mqtt']['discovery_prefix']
 
 client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=3)
 
@@ -54,8 +60,22 @@ client.connect(host, port, 60)
 if __name__ == "__main__":
     # Create door objects and create callback functions
     for doorCfg in CONFIG['doors']:
-        command_topic = doorCfg['command_topic']
-        state_topic = doorCfg['state_topic']
+
+        # If no name it set, then set to id
+        if not doorCfg['name']:
+            doorCfg['name'] = doorCfg['id']
+
+        # Sanitize id value for mqtt
+        doorCfg['id'] = re.sub('\W+', '', re.sub('\s', ' ', doorCfg['id']))
+
+        if discovery is True:
+            base_topic = discovery_prefix + "/cover/" + doorCfg['id']
+            config_topic = base_topic + "/config"
+            command_topic = doorCfg['command_topic'] = base_topic + "/set"
+            state_topic = doorCfg['state_topic'] = base_topic + "/state"
+        else:
+            command_topic = doorCfg['command_topic']
+            state_topic = doorCfg['state_topic']
 
 
         door = GarageDoor(doorCfg)
@@ -75,6 +95,10 @@ if __name__ == "__main__":
 
         # Publish initial door state
         client.publish(state_topic, door.state, retain=True)
+
+        # If discovery is enabled publish configuration
+        if discovery is True:
+            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '"}', retain=True)
 
     # Main loop
     client.loop_forever()
