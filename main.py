@@ -24,7 +24,11 @@ def on_connect(client, userdata, rc):
 
 # Execute the specified command for a door
 def execute_command(door, command):
-    print "Executing command %s for door %s" % (command, door.name)
+    try:
+        doorName = door.name
+    except:
+        doorName = door.id
+    print "Executing command %s for door %s" % (command, doorName)
     if command == "OPEN" and door.state == 'closed':
         door.open()
     elif command == "CLOSE" and door.state == 'open':
@@ -71,11 +75,11 @@ if __name__ == "__main__":
         if discovery is True:
             base_topic = discovery_prefix + "/cover/" + doorCfg['id']
             config_topic = base_topic + "/config"
-            command_topic = doorCfg['command_topic'] = base_topic + "/set"
-            state_topic = doorCfg['state_topic'] = base_topic + "/state"
-        else:
-            command_topic = doorCfg['command_topic']
-            state_topic = doorCfg['state_topic']
+            doorCfg['command_topic'] = base_topic + "/set"
+            doorCfg['state_topic'] = base_topic + "/state"
+        
+        command_topic = doorCfg['command_topic']
+        state_topic = doorCfg['state_topic']
 
 
         door = GarageDoor(doorCfg)
