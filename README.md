@@ -89,7 +89,9 @@ HomeAssistant MQTT Setup: https://home-assistant.io/components/mqtt/
 Bruh Automation: https://www.youtube.com/watch?v=AsDHEDbyLfg
 
 ## Home Assistant component setup
-HomeAssistant MQTT Cover: https://home-assistant.io/components/cover.mqtt/
+Either follow the cover setup or enable mqtt discovery  
+HomeAssistant MQTT Cover: https://home-assistant.io/components/cover.mqtt/  
+HomeAssistant MQTT Discovery: https://home-assistant.io/docs/mqtt/discovery/
 
 Screenshot:
 
@@ -134,11 +136,27 @@ doors:
 ```
 
 ### Optional configuration
-So far there are two optional configuration parameters. One to flip the state pin of the magnetic switch in the invent of a different wiring schema. The second one to filp the relay logic. This is a per door configuration option like:
+There are five optional configuration parameters.  
+Two of the option parameters are for mqtt.  One is to enable discovery by HomeAssistant. The second one changes the discovery prefix for HomeAssitant.
+```
+mqtt:
+    host: m10.cloudmqtt.com
+    port: *
+    user: *
+    password: *
+    discovery: true
+    discovery_prefix: 'homeassistant'
+```
+
+The discovery parameter defaults to false and should be set to true to enable discovery by HomeAssistant. If set to true, the door state_topic and command_topic parameters are not necessary and are ignored.  
+The discovery_prefix parameter defaults to 'homeassistant' and shouldn't be changed unless changed in HomeAssistant
+
+The other three of the option parameters are for the doors. One to give the door a name for discovery.  The second one to flip the state pin of the magnetic switch in the invent of a different wiring schema. The third one to filp the relay logic.  This is a per door configuration option like:
 ```
 doors:
     -
         id: 'left'
+        name: 'Left Garage Door'
         relay: 23
         state: 17
         state_mode: normally_closed
@@ -147,7 +165,8 @@ doors:
         command_topic: "home-assistant/cover/left/set"
 ```
 
-The state_mode parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'
+The name parameter defaults to the unsanitized id parameter  
+The state_mode parameter defaults to 'normally_open' and isn't necessary unless you want to change it to 'normally_closed'  
 The invert_relay parameter defaults to false and isn't necessary unless you want to set the relay pin to be powered by default
         
 ## Contributors

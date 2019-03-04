@@ -3,11 +3,14 @@ mqtt:
     port: 
     user: 
     password: 
+#    discovery: true #defaults to false, uncomment to enable home-assistant discovery
+#    discovery_prefix: homeassistant #change to match with setting of home-assistant
 doors:
     -
         id: 
-        relay:
-        state:
+#        name: #defaults to an unsanitized version of the id paramater
+        relay: 
+        state: 
 #        state_mode: normally_closed #defaults to normally open, uncomment to switch
 #        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"
