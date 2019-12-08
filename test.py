@@ -54,12 +54,20 @@ else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
 
 # client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=4)
-client = mqtt.Client(client_id = "MQTTGarageDoor_{:6s}".format(str(random.randint(0,999999))), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
-
+id = "MQTTGarageDoor_{:6s}".format(str(random.randint(0,999999)))
+print ("id = " + id)
+#client = mqtt.Client(client_id = "MQTTGarageDoor_{:6s}".format(str(random.randint(0,999999))), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
+client = mqtt.Client()
 client.on_connect = on_connect
 
-client.username_pw_set(user, password=password)
-client.connect(host, port, 60)
+# client.username_pw_set(user, password=password)
+client.connect('192.168.2.94')
+
+#for config in CONFIG['doors']:
+#    command_topic = config['command_topic']
+#    print("Listening for commands on %s" % command_topic)
+#    client.subscribe(command_topic)
+
 
 
 ### SETUP END ###
@@ -90,7 +98,7 @@ if __name__ == "__main__":
 
         # Callback per door that passes a reference to the door
         def on_message(client, userdata, msg, door=door):
-            execute_command(door, msg.payload.decode("utf-8"))
+            execute_command(door, str(msg.payload))
 
         # Callback per door that passes the doors state topic
         def on_state_change(value, topic=state_topic):
