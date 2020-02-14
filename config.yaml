@@ -5,6 +5,10 @@ mqtt:
     password: 
 #    discovery: true #defaults to false, uncomment to enable home-assistant discovery
 #    discovery_prefix: homeassistant #change to match with setting of home-assistant
+    availability_topic: home-assistant/cover/availabilty
+    payload_available: online
+    payload_not_available: offline
+
 doors:
     -
         id: 
