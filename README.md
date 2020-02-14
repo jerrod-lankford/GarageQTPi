@@ -70,15 +70,15 @@ So far this has proved to be relatively stable.
 ## Software
 
 ### Prereqs 
-* Raspberry pi 3 running rasbian jessie
-* Python 2.7.x
-* pip (python 2 pip)
+* Raspberry pi 3 running rasbian stretch
+* Python 3.x
+* pip3 (python 3 pip)
 
 ### Installation
 1. `git clone https://github.com/Jerrkawz/GarageQTPi.git`
-2. `pip install -r requirements.txt`
+2. `pip3 install -r requirements.txt`
 3. edit the configuration.yaml to set up mqtt (See below)
-4. `python main.py` 
+4. `python3 main.py` 
 5. To start the server on boot run `sudo bash autostart_systemd.sh`
 
 ## MQTT setup
