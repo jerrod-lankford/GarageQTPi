@@ -1,6 +1,6 @@
 mqtt:
-    host: 
-    port: 
+    host: mqtt.thegrays.duckdns.org
+    port: 1883
     user: 
     password: 
 #    discovery: true #defaults to false, uncomment to enable home-assistant discovery
@@ -11,10 +11,10 @@ mqtt:
 
 doors:
     -
-        id: 
-#        name: #defaults to an unsanitized version of the id paramater
-        relay: 
-        state: 
+        id: 'garage_door'
+        name: #defaults to an unsanitized version of the id paramater
+        relay: 21
+        state: 12
 #        state_mode: normally_closed #defaults to normally open, uncomment to switch
 #        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"

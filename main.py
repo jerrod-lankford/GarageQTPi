@@ -22,8 +22,10 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code: %s" % mqtt.connack_string(rc))
     # notify subscribed clients that we are available
     client.publish(CONFIG['mqtt']['availability_topic'], CONFIG['mqtt']['payload_available'], retain=True)
+    print("Sent payload: '" + CONFIG['mqtt']['payload_available'] + "' to topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
     # set a last will message so the broker will notify connected clients when we are not available
     client.will_set(CONFIG['mqtt']['availability_topic'], CONFIG['mqtt']['payload_not_available'], retain=True)
+    print("Set last will message: '" + CONFIG['mqtt']['payload_not_available'] + "' for topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
         print("Listening for commands on %s" % command_topic)
@@ -119,8 +121,6 @@ if __name__ == "__main__":
             discovery_info["availability_topic"]=CONFIG['mqtt']['availability_topic']
             discovery_info["payload_available"]=CONFIG['mqtt']['payload_available']
             discovery_info["payload_not_available"]=CONFIG['mqtt']['payload_not_available']
-
-
 
             client.publish(config_topic,json.dumps(discovery_info), retain=True)
 
