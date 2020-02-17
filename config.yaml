@@ -1,10 +1,14 @@
 mqtt:
-    host: 192.168.2.94
+    host: mqtt.thegrays.duckdns.org
     port: 1883
     user: "" 
     password: "" 
     discovery: true #defaults to false, uncomment to enable home-assistant discovery
     discovery_prefix: homeassistant #change to match with setting of home-assistant
+    availability_topic: home-assistant/cover/availabilty
+    payload_available: online
+    payload_not_available: offline
+
 doors:
     -
         id:  'garage_door'
