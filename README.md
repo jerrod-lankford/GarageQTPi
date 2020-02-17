@@ -136,8 +136,15 @@ doors:
 ```
 
 ### Optional configuration
-There are five optional configuration parameters.  
-Two of the option parameters are for mqtt.  One is to enable discovery by HomeAssistant. The second one changes the discovery prefix for HomeAssitant.
+There are eight optional configuration parameters.  
+Five of the option parameters are for mqtt.  One is to enable discovery by HomeAssistant. The second one changes the discovery prefix for HomeAssitant. The other three allow you to set the availability topic, payload for available and payload for not available.  Note these three parameters have the following default values:
+```
+    availability_topic: discovery_prefix + '/cover/availabilty'
+    payload_available: online (same as home assistant default)
+    payload_not_available: offline (same as home assistant default)
+
+```
+### Full mqtt configuration with optional parameters
 ```
 mqtt:
     host: m10.cloudmqtt.com
@@ -146,12 +153,15 @@ mqtt:
     password: *
     discovery: true
     discovery_prefix: 'homeassistant'
+    availability_topic: home-assistant/cover/availabilty
+    payload_available: online
+    payload_not_available: offline
 ```
 
 The discovery parameter defaults to false and should be set to true to enable discovery by HomeAssistant. If set to true, the door state_topic and command_topic parameters are not necessary and are ignored.  
 The discovery_prefix parameter defaults to 'homeassistant' and shouldn't be changed unless changed in HomeAssistant
 
-The other three of the option parameters are for the doors. One to give the door a name for discovery.  The second one to flip the state pin of the magnetic switch in the invent of a different wiring schema. The third one to filp the relay logic.  This is a per door configuration option like:
+The other three of the option parameters are for the doors. One gives the door a name for discovery.  The second one to flip the state pin of the magnetic switch in the invent of a different wiring schema. The third one to filp the relay logic.  This is a per door configuration option like:
 ```
 doors:
     -
@@ -163,6 +173,7 @@ doors:
         invert_relay: true
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
+
 ```
 
 The name parameter defaults to the unsanitized id parameter  
