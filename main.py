@@ -124,6 +124,9 @@ if __name__ == "__main__":
 
             client.publish(config_topic,json.dumps(discovery_info), retain=True)
 
+            print("Sent audodiscovery config: " + json.dumps(discovery_info, indent=4))
+            print("to topic: " + config_topic)
+            
     # Main loop
     client.loop_forever()
 
