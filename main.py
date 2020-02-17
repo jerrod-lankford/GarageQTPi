@@ -23,9 +23,6 @@ def on_connect(client, userdata, flags, rc):
     # notify subscribed clients that we are available
     client.publish(CONFIG['mqtt']['availability_topic'], CONFIG['mqtt']['payload_available'], retain=True)
     print("Sent payload: '" + CONFIG['mqtt']['payload_available'] + "' to topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
-    # set a last will message so the broker will notify connected clients when we are not available
-    client.will_set(CONFIG['mqtt']['availability_topic'], CONFIG['mqtt']['payload_not_available'], retain=True)
-    print("Set last will message: '" + CONFIG['mqtt']['payload_not_available'] + "' for topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
         print("Listening for commands on %s" % command_topic)
@@ -68,6 +65,11 @@ client = mqtt.Client(client_id = "MQTTGarageDoor_{:6s}".format(str(random.randin
 client.on_connect = on_connect
 
 client.username_pw_set(user, password=password)
+
+# set a last will message so the broker will notify connected clients when we are not available
+client.will_set(CONFIG['mqtt']['availability_topic'], CONFIG['mqtt']['payload_not_available'], retain=True)
+print("Set last will message: '" + CONFIG['mqtt']['payload_not_available'] + "' for topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
+
 client.connect(host, port, 60)
 
 
