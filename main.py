@@ -113,9 +113,16 @@ if __name__ == "__main__":
         
         command_topic = doorCfg['command_topic']
         state_topic = doorCfg['state_topic']
-        
-        
-        door = GarageDoor(doorCfg)
+        #
+        # If the open switch is specified use a two switch garage door
+        # otherwise use a door with only a closed switch.
+        # The interface is the same.  The two switch garage door
+        # reports the states "open" and "closed"
+        #
+        if "open" in doorCfg:
+            door = TwoSwitchGarageDoor(doorCfg)
+        else:
+            door = GarageDoor(doorCfg)
 
         # Callback per door that passes a reference to the door
         def on_message(client, userdata, msg, door=door):
