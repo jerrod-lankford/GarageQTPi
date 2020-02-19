@@ -7,6 +7,8 @@ import re
 import json
 
 from lib.garage import GarageDoor
+from lib.garage import TwoSwitchGarageDoor
+
 
 print("Welcome to GarageBerryPi!")
 discovery_info = {}
