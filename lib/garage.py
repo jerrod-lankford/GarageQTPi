@@ -87,39 +87,39 @@ class GarageDoor(object):
 # instead of just open and closed.
 # Note that unlike it's parent class this class does maintain an internal state 
 #
-    class TwoSwitchGarageDoor(GarageDoor):
+class TwoSwitchGarageDoor(GarageDoor):
 
-        def __init__(self, config):
-            # Use the parent class initialization
-            super().__init(config)
-            # Add the pin for the open switch
-            self.open_pin = config['open']
-            # Add event detect for the open pin
-            GPIO.add_event_detect(self.open_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
+    def __init__(self, config):
+        # Use the parent class initialization
+        super().__init(config)
+        # Add the pin for the open switch
+        self.open_pin = config['open']
+        # Add event detect for the open pin
+        GPIO.add_event_detect(self.open_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
         
-        # State is a read only property. It's value is determined by the previous state and what just happened with the switches
-        @property
-        def state(self):
-            # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
-            # and vice versa for normally open
-            closed_state = True if GPIO.input(self.state_pin) == self.mode else False
-            open_state = True if GPIO.input(self.open_pin) == self.mode else False
-            if closed_state:
-                self._state = 'closed
-            elif open_state:
-                self._state = 'open'
-            elif self._state == 'closed':
-                self._state = 'opening'
-            elif self.state == 'open':
-                self._state = 'closing'
-            return self._state
+    # State is a read only property. It's value is determined by the previous state and what just happened with the switches
+    @property
+    def state(self):
+        # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
+        # and vice versa for normally open
+        closed_state = True if GPIO.input(self.state_pin) == self.mode else False
+        open_state = True if GPIO.input(self.open_pin) == self.mode else False
+        if closed_state:
+            self._state = 'closed'
+        elif open_state:
+            self._state = 'open'
+        elif self._state == 'closed':
+            self._state = 'opening'
+        elif self.state == 'open':
+            self._state = 'closing'
+        return self._state
         
-            # Provide an event for when the state pin changes
-        def __stateChanged(self, channel):
-            if channel == self.state_pin or channel == self.open_pin:
-                # Had some issues getting an accurate value so we are going to wait for a short timeout
-                # after a statechange and then grab the state
-                time.sleep(SHORT_WAIT)
-                self.onStateChange.fire(self.state)
+        # Provide an event for when the state pin changes
+    def __stateChanged(self, channel):
+        if channel == self.state_pin or channel == self.open_pin:
+            # Had some issues getting an accurate value so we are going to wait for a short timeout
+            # after a statechange and then grab the state
+            time.sleep(SHORT_WAIT)
+            self.onStateChange.fire(self.state)
         
 
