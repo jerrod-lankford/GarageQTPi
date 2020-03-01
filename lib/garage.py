@@ -91,10 +91,11 @@ class TwoSwitchGarageDoor(GarageDoor):
 
     def __init__(self, config):
         # Use the parent class initialization
-        super().__init(config)
+        super().__init__(config)
         # Add the pin for the open switch
         self.open_pin = config['open']
         # Add event detect for the open pin
+        GPIO.setup(self.open_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(self.open_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
         
     # State is a read only property. It's value is determined by the previous state and what just happened with the switches
@@ -110,7 +111,7 @@ class TwoSwitchGarageDoor(GarageDoor):
             self._state = 'open'
         elif self._state == 'closed':
             self._state = 'opening'
-        elif self.state == 'open':
+        elif self._state == 'open':
             self._state = 'closing'
         return self._state
         
