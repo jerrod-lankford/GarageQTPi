@@ -15,6 +15,7 @@ doors:
         name: #garage_door
         relay: 21 
         state: 12
+        open: 7
         state_mode: normally_closed #defaults to normally open, uncomment to switch
 #        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"
