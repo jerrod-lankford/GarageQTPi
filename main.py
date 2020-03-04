@@ -7,32 +7,47 @@ import re
 import json
 
 from lib.garage import GarageDoor
+from lib.garage import TwoSwitchGarageDoor
+
 
 print("Welcome to GarageBerryPi!")
 discovery_info = {}
 
 # Update the mqtt state topic
+
+
 def update_state(value, topic):
     print("State change triggered: %s -> %s" % (topic, value))
 
     client.publish(topic, value, retain=True)
 
 # The callback for when the client receives a CONNACK response from the server.
+
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code: %s" % mqtt.connack_string(rc))
     # notify subscribed clients that we are available
     client.publish(availability_topic, payload_available, retain=True)
-    print("Sent payload: '" + CONFIG['mqtt']['payload_available'] + "' to topic: '" + CONFIG['mqtt']['availability_topic'] + "'")
+
+    print(
+        "Sent payload: '" +
+        CONFIG['mqtt']['payload_available'] +
+        "' to topic: '" +
+        CONFIG['mqtt']['availability_topic'] +
+        "'")
+
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
         print("Listening for commands on %s" % command_topic)
         client.subscribe(command_topic)
 
 # Execute the specified command for a door
+
+
 def execute_command(door, command):
     try:
         doorName = door.name
-    except:
+    except BaseException:
         doorName = door.id
     print("Executing command %s for door %s" % (command, doorName))
     if command == "OPEN" and door.state == 'closed':
@@ -43,6 +58,7 @@ def execute_command(door, command):
         door.stop()
     else:
         print("Invalid command: %s" % command)
+
 
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
@@ -63,30 +79,43 @@ else:
 # if not use defaults
 #
 if 'availability_topic' in CONFIG['mqtt']:
-    availability_topic =  CONFIG['mqtt']['availability_topic']
+
+    availability_topic = CONFIG['mqtt']['availability_topic']
 else:
-    availability_topic = discovery_prefix + '/cover' +  '/availability'  
-       
+    availability_topic = discovery_prefix + '/cover' + '/availability'
+
 if 'payload_available' in CONFIG['mqtt']:
-    payload_available =  CONFIG['mqtt']['payload_available']
+    payload_available = CONFIG['mqtt']['payload_available']
+
 else:
     payload_available = 'online'
 
 if 'payload_not_available' in CONFIG['mqtt']:
-    payload_not_available =  CONFIG['mqtt']['payload_not_available']
+
+    payload_not_available = CONFIG['mqtt']['payload_not_available']
+
 else:
     payload_not_available = 'offline'
 
 # client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=4)
-client = mqtt.Client(client_id = "MQTTGarageDoor_{:6s}".format(str(random.randint(0,999999))), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
+client = mqtt.Client(client_id="MQTTGarageDoor_{:6s}".format(str(random.randint(
+    0, 999999))), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
 
 client.on_connect = on_connect
 
 client.username_pw_set(user, password=password)
 
-# set a last will message so the broker will notify connected clients when we are not available
+
+# set a last will message so the broker will notify connected clients when
+# we are not available
 client.will_set(availability_topic, payload_not_available, retain=True)
-print("Set last will message: '" + payload_not_available + "' for topic: '" + availability_topic + "'")
+print(
+    "Set last will message: '" +
+    payload_not_available +
+    "' for topic: '" +
+    availability_topic +
+    "'")
+
 
 client.connect(host, port, 60)
 
@@ -103,19 +132,27 @@ if __name__ == "__main__":
             doorCfg['name'] = doorCfg['id']
 
         # Sanitize id value for mqtt
-        doorCfg['id'] = re.sub('\W+', '', re.sub('\s', ' ', doorCfg['id']))
+        doorCfg['id'] = re.sub(r'\W+', '', re.sub(r'\s', ' ', doorCfg['id']))
 
         if discovery is True:
             base_topic = discovery_prefix + "/cover/" + doorCfg['id']
             config_topic = base_topic + "/config"
             doorCfg['command_topic'] = base_topic + "/set"
             doorCfg['state_topic'] = base_topic + "/state"
-        
+
         command_topic = doorCfg['command_topic']
         state_topic = doorCfg['state_topic']
-        
-        
-        door = GarageDoor(doorCfg)
+
+        #
+        # If the open switch is specified use a two switch garage door
+        # otherwise use a door with only a closed switch.
+        # The interface is the same.  The two switch garage door
+        # reports the states "open" and "closed"
+        #
+        if "open" in doorCfg:
+            door = TwoSwitchGarageDoor(doorCfg)
+        else:
+            door = GarageDoor(doorCfg)
 
         # Callback per door that passes a reference to the door
         def on_message(client, userdata, msg, door=door):
@@ -127,7 +164,8 @@ if __name__ == "__main__":
 
         client.message_callback_add(command_topic, on_message)
 
-        # You can add additional listeners here and they will all be executed when the door state changes
+        # You can add additional listeners here and they will all be executed
+        # when the door state changes
         door.onStateChange.addHandler(on_state_change)
 
         # Publish initial door state
@@ -135,19 +173,25 @@ if __name__ == "__main__":
 
         # If discovery is enabled publish configuration
         if discovery is True:
-            discovery_info["name"]=doorCfg['name']
-            discovery_info["command_topic"]=doorCfg['command_topic']
-            discovery_info["state_topic"]=doorCfg['state_topic']
-            discovery_info["availability_topic"]=availability_topic
-            discovery_info["payload_available"]=payload_available
-            discovery_info["payload_not_available"]=payload_not_available
 
-            client.publish(config_topic,json.dumps(discovery_info), retain=True)
+            discovery_info["name"] = doorCfg['name']
+            discovery_info["command_topic"] = doorCfg['command_topic']
+            discovery_info["state_topic"] = doorCfg['state_topic']
+            discovery_info["availability_topic"] = availability_topic
+            discovery_info["payload_available"] = payload_available
+            discovery_info["payload_not_available"] = payload_not_available
 
-            print("Sent audodiscovery config: " + json.dumps(discovery_info, indent=4))
+            client.publish(
+                config_topic,
+                json.dumps(discovery_info),
+                retain=True)
+
+            print(
+                "Sent audodiscovery config: " +
+                json.dumps(
+                    discovery_info,
+                    indent=4))
             print("to topic: " + config_topic)
-            
+
     # Main loop
     client.loop_forever()
-
-
