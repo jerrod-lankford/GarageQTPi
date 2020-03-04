@@ -28,12 +28,14 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code: %s" % mqtt.connack_string(rc))
     # notify subscribed clients that we are available
     client.publish(availability_topic, payload_available, retain=True)
+
     print(
         "Sent payload: '" +
         CONFIG['mqtt']['payload_available'] +
         "' to topic: '" +
         CONFIG['mqtt']['availability_topic'] +
         "'")
+
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
         print("Listening for commands on %s" % command_topic)
@@ -77,17 +79,21 @@ else:
 # if not use defaults
 #
 if 'availability_topic' in CONFIG['mqtt']:
+
     availability_topic = CONFIG['mqtt']['availability_topic']
 else:
     availability_topic = discovery_prefix + '/cover' + '/availability'
 
 if 'payload_available' in CONFIG['mqtt']:
     payload_available = CONFIG['mqtt']['payload_available']
+
 else:
     payload_available = 'online'
 
 if 'payload_not_available' in CONFIG['mqtt']:
+
     payload_not_available = CONFIG['mqtt']['payload_not_available']
+
 else:
     payload_not_available = 'offline'
 
@@ -99,6 +105,7 @@ client.on_connect = on_connect
 
 client.username_pw_set(user, password=password)
 
+
 # set a last will message so the broker will notify connected clients when
 # we are not available
 client.will_set(availability_topic, payload_not_available, retain=True)
@@ -108,6 +115,7 @@ print(
     "' for topic: '" +
     availability_topic +
     "'")
+
 
 client.connect(host, port, 60)
 
@@ -134,6 +142,7 @@ if __name__ == "__main__":
 
         command_topic = doorCfg['command_topic']
         state_topic = doorCfg['state_topic']
+
         #
         # If the open switch is specified use a two switch garage door
         # otherwise use a door with only a closed switch.
@@ -164,6 +173,7 @@ if __name__ == "__main__":
 
         # If discovery is enabled publish configuration
         if discovery is True:
+
             discovery_info["name"] = doorCfg['name']
             discovery_info["command_topic"] = doorCfg['command_topic']
             discovery_info["state_topic"] = doorCfg['state_topic']
