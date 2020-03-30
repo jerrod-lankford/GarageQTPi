@@ -1,7 +1,8 @@
 ## Summary of Changes included in this fork of GarageQTPi
 1. Upgrades python to version 3 and updates versions of libraries in requirements.txt
 2. Added code to update the mqtt availability topic to inform subscribers when the app is offline.
-3. Adds support for opening and closing states for garage doors (requires a second switch for the open position)
+3. Added support for opening and closing states for garage doors (requires a second switch for the open position)
+4. Added validation of config.yaml via voluptuous.
 
 ## How to enable the changes
 1. If using mqtt discovery the availability topics will be automatically created and updated with default values.  You can also overide the default values by adding lines for the availability topic and payloads to the mqtt section of the config file, for example:
