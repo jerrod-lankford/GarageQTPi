@@ -5,12 +5,21 @@ import paho.mqtt.client as mqtt
 import paho.mqtt
 import re
 import json
+import voluptuous as vol
+from voluptuous import Any
 
 from lib.garage import GarageDoor
 from lib.garage import TwoSwitchGarageDoor
 
+DEFAULT_DISCOVERY = False
+DEFAULT_DISCOVERY_PREFIX = "homeassistant"
+DEFAULT_AVAILABILITY_TOPIC = "home-assistant/cover/availabilty"
+DEFAULT_PAYLOAD_AVAILABLE = "online"
+DEFAULT_PAYLOAD_NOT_AVAILABLE ="offline"
+DEFAULT_STATE_MODE = "normally_open"
+DEFAULT_INVERT_RELAY = False
 
-print("Welcome to GarageBerryPi!")
+print("Welcome to GarageQtPi!")
 discovery_info = {}
 
 # Update the mqtt state topic
@@ -60,42 +69,82 @@ def execute_command(door, command):
         print("Invalid command: %s" % command)
 
 
+
+CONFIG_SCHEMA = vol.Schema(
+    {
+    "mqtt": vol.Schema(
+        {
+            vol.Required("host"): str,
+            vol.Required("port"): int,
+            vol.Required("user"): str,
+            vol.Required("password"): str,
+            vol.Optional("discovery", default = DEFAULT_DISCOVERY): Any(bool, None),
+            vol.Optional("discovery_prefix", default = DEFAULT_DISCOVERY_PREFIX): Any(str, None),
+            vol.Optional("availability_topic", default = DEFAULT_AVAILABILITY_TOPIC): Any(str, None),
+            vol.Optional("payload_available", default = DEFAULT_PAYLOAD_AVAILABLE): Any(str,None),
+            vol.Optional("payload_not_available", default = DEFAULT_PAYLOAD_NOT_AVAILABLE ): Any(str, None)
+
+
+        }
+    ),
+    "doors": [vol.Schema(
+        {
+            vol.Required("id"): str,
+            vol.Optional("name"): Any(str, None), 
+            vol.Required("relay"): int,
+            vol.Required("state"): int,
+            vol.Optional("open"): int,
+            vol.Optional("state_mode", default = DEFAULT_STATE_MODE): Any(None, 'normally_closed', 'normally_open'),
+            vol.Optional("invert_relay", default = DEFAULT_INVERT_RELAY): bool,
+            vol.Optional("state_topic"): str,
+            vol.Required("command_topic"): str
+        }
+    )]
+    })
+
+
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
-    CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+CONFIG = CONFIG_SCHEMA(file_CONFIG)
+print ("Config suceesfully validated against schema")
+print(json.dumps(
+    CONFIG, indent = 4))
 
 ### SETUP MQTT ###
 user = CONFIG['mqtt']['user']
 password = CONFIG['mqtt']['password']
 host = CONFIG['mqtt']['host']
 port = int(CONFIG['mqtt']['port'])
-discovery = bool(CONFIG['mqtt'].get('discovery'))
+if CONFIG['mqtt']['discovery'] is None:
+    discovery = DEFAULT_DISCOVERY
+else:
+    discovery = CONFIG['mqtt']['discovery']
 
-if 'discovery_prefix' not in CONFIG['mqtt']:
-    discovery_prefix = 'homeassistant'
+if CONFIG['mqtt']['discovery_prefix'] is None:
+    discovery_prefix = DEFAULT_DISCOVERY_PREFIX
 else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
+    
 #
 # if availability values specified in config use them
-# if not use defaults
+# if not use defaults 
 #
-if 'availability_topic' in CONFIG['mqtt']:
 
-    availability_topic = CONFIG['mqtt']['availability_topic']
+if CONFIG['mqtt']['availability_topic'] is None:
+    availability_topic = DEFAULT_AVAILABILITY_TOPIC
 else:
-    availability_topic = discovery_prefix + '/cover' + '/availability'
+    availability_topic = CONFIG['mqtt']['availability_topic']
 
-if 'payload_available' in CONFIG['mqtt']:
+if CONFIG['mqtt']['payload_available'] is None:
+    payload_available = DEFAULT_PAYLOAD_AVAILABLE
+else:
     payload_available = CONFIG['mqtt']['payload_available']
 
+if CONFIG['mqtt']['payload_not_available'] is None:
+    payload_not_available = DEFAULT_PAYLOAD_NOT_AVAILABLE
 else:
-    payload_available = 'online'
-
-if 'payload_not_available' in CONFIG['mqtt']:
-
     payload_not_available = CONFIG['mqtt']['payload_not_available']
-
-else:
-    payload_not_available = 'offline'
 
 # client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=4)
 client = mqtt.Client(client_id="MQTTGarageDoor_{:6s}".format(str(random.randint(
@@ -128,7 +177,9 @@ if __name__ == "__main__":
     for doorCfg in CONFIG['doors']:
 
         # If no name it set, then set to id
-        if not doorCfg['name']:
+        if 'name' not in doorCfg:
+            doorCfg['name'] = doorCfg['id']
+        elif doorCfg['name'] is None:
             doorCfg['name'] = doorCfg['id']
 
         # Sanitize id value for mqtt
@@ -149,7 +200,7 @@ if __name__ == "__main__":
         # The interface is the same.  The two switch garage door
         # reports the states "open" and "closed"
         #
-        if "open" in doorCfg:
+        if "open" in doorCfg and doorCfg["open"] is not None:
             door = TwoSwitchGarageDoor(doorCfg)
         else:
             door = GarageDoor(doorCfg)
