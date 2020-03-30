@@ -5,6 +5,8 @@ import paho.mqtt.client as mqtt
 import paho.mqtt
 import re
 import json
+import voluptuous as vol
+from voluptuous import Any
 
 from lib.garage import GarageDoor
 from lib.garage import TwoSwitchGarageDoor
@@ -57,9 +59,44 @@ def execute_command(door, command):
     else:
         print("Invalid command: %s" % command)
 
+CONFIG_SCHEMA = vol.Schema(
+    {
+    "mqtt": vol.Schema(
+        {
+            vol.Required("host"): str,
+            vol.Required("port"): int,
+            vol.Required("user"): str,
+            vol.Required("password"): str,
+            vol.Optional("discovery"): Any(bool, None),
+            vol.Required("discovery_prefix"): str,
+            vol.Optional("availability_topic"): Any(str, None),
+            vol.Optional("payload_available"): Any(str,None),
+            vol.Optional("payload_not_available"): Any(str, None)
+
+
+        }
+    ),
+    "doors": [vol.Schema(
+        {
+            vol.Required("id"): str,
+            vol.Optional("name"): Any(str, None),
+            vol.Required("relay"): int,
+            vol.Required("state"): int,
+            vol.Optional("open"): int, # need to verify checks
+            vol.Required("state_mode"): Any(None, 'normally_closed', 'normally_open'),
+            vol.Optional("invert_relay"): bool, # need to verify checks
+            vol.Optional("state_topic"): str, # need to verify checks
+            vol.Required("command_topic"): str
+        }
+    )]
+    })
 
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
-    CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+CONFIG = CONFIG_SCHEMA(file_CONFIG)
+print ("Config suceesfully validated against schema")
+print(json.dumps(VALIDATED_CONFIG, indent = 4))
 
 ### SETUP MQTT ###
 user = CONFIG['mqtt']['user']
@@ -70,26 +107,35 @@ discovery = bool(CONFIG['mqtt'].get('discovery'))
 
 if 'discovery_prefix' not in CONFIG['mqtt']:
     discovery_prefix = 'homeassistant'
+elif CONFIG['mqtt']['discovery_prefix'] is None
+    discovery_prefix = 'homeassistant'
 else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
+    
 #
 # if availability values specified in config use them
-# if not use defaults
+# if not use defaults 
 #
-if 'availability_topic' in CONFIG['mqtt']:
-    availability_topic = CONFIG['mqtt']['availability_topic']
-else:
+if 'availability_topic' not in CONFIG['mqtt']:
     availability_topic = discovery_prefix + '/cover' + '/availability'
-
-if 'payload_available' in CONFIG['mqtt']:
-    payload_available = CONFIG['mqtt']['payload_available']
+elif CONFIG['mqtt']['availability_topic'] is None
+    availability_topic = discovery_prefix + '/cover' + '/availability'
 else:
+    availability_topic = CONFIG['mqtt']['availability_topic']
+
+if 'payload_available' not in CONFIG['mqtt']:
     payload_available = 'online'
-
-if 'payload_not_available' in CONFIG['mqtt']:
-    payload_not_available = CONFIG['mqtt']['payload_not_available']
+elif CONFIG['mqtt']['payload_available'] is None
+    payload_available = 'online'
 else:
+    payload_available = CONFIG['mqtt']['payload_available']
+
+if 'payload_not_available' not in CONFIG['mqtt']:
     payload_not_available = 'offline'
+elif CONFIG['mqtt']['payload_not_available'] is None
+    payload_not_available = 'offline'
+else:
+    payload_not_available = CONFIG['mqtt']['payload_not_available']
 
 # client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=4)
 client = mqtt.Client(client_id="MQTTGarageDoor_{:6s}".format(str(random.randint(
@@ -120,7 +166,9 @@ if __name__ == "__main__":
     for doorCfg in CONFIG['doors']:
 
         # If no name it set, then set to id
-        if not doorCfg['name']:
+        if 'name' not doorCfg:
+            doorCfg['name'] = doorCfg['id']
+        elif if doorCfg['name'] is None
             doorCfg['name'] = doorCfg['id']
 
         # Sanitize id value for mqtt
