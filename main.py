@@ -96,7 +96,7 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'
 
 CONFIG = CONFIG_SCHEMA(file_CONFIG)
 print ("Config suceesfully validated against schema")
-print(json.dumps(VALIDATED_CONFIG, indent = 4))
+print(json.dumps(CONFIG, indent = 4))
 
 ### SETUP MQTT ###
 user = CONFIG['mqtt']['user']
@@ -107,7 +107,7 @@ discovery = bool(CONFIG['mqtt'].get('discovery'))
 
 if 'discovery_prefix' not in CONFIG['mqtt']:
     discovery_prefix = 'homeassistant'
-elif CONFIG['mqtt']['discovery_prefix'] is None
+elif CONFIG['mqtt']['discovery_prefix'] is None:
     discovery_prefix = 'homeassistant'
 else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
@@ -118,21 +118,21 @@ else:
 #
 if 'availability_topic' not in CONFIG['mqtt']:
     availability_topic = discovery_prefix + '/cover' + '/availability'
-elif CONFIG['mqtt']['availability_topic'] is None
+elif CONFIG['mqtt']['availability_topic'] is None:
     availability_topic = discovery_prefix + '/cover' + '/availability'
 else:
     availability_topic = CONFIG['mqtt']['availability_topic']
 
 if 'payload_available' not in CONFIG['mqtt']:
     payload_available = 'online'
-elif CONFIG['mqtt']['payload_available'] is None
+elif CONFIG['mqtt']['payload_available'] is None:
     payload_available = 'online'
 else:
     payload_available = CONFIG['mqtt']['payload_available']
 
 if 'payload_not_available' not in CONFIG['mqtt']:
     payload_not_available = 'offline'
-elif CONFIG['mqtt']['payload_not_available'] is None
+elif CONFIG['mqtt']['payload_not_available'] is None:
     payload_not_available = 'offline'
 else:
     payload_not_available = CONFIG['mqtt']['payload_not_available']
@@ -166,9 +166,9 @@ if __name__ == "__main__":
     for doorCfg in CONFIG['doors']:
 
         # If no name it set, then set to id
-        if 'name' not doorCfg:
+        if 'name' not in doorCfg:
             doorCfg['name'] = doorCfg['id']
-        elif if doorCfg['name'] is None
+        elif doorCfg['name'] is None:
             doorCfg['name'] = doorCfg['id']
 
         # Sanitize id value for mqtt
