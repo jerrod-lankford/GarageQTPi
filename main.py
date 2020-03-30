@@ -11,8 +11,15 @@ from voluptuous import Any
 from lib.garage import GarageDoor
 from lib.garage import TwoSwitchGarageDoor
 
+DEFAULT_DISCOVERY = False
+DEFAULT_DISCOVERY_PREFIX = "homeassistant"
+DEFAULT_AVAILABILITY_TOPIC = "home-assistant/cover/availabilty"
+DEFAULT_PAYLOAD_AVAILABLE = "online"
+DEFAULT_PAYLOAD_NOT_AVAILABLE ="offline"
+DEFAULT_STATE_MODE = "normally_open"
+DEFAULT_INVERT_RELAY = False
 
-print("Welcome to GarageBerryPi!")
+print("Welcome to GarageQtPi!")
 discovery_info = {}
 
 # Update the mqtt state topic
@@ -59,6 +66,8 @@ def execute_command(door, command):
     else:
         print("Invalid command: %s" % command)
 
+
+
 CONFIG_SCHEMA = vol.Schema(
     {
     "mqtt": vol.Schema(
@@ -67,11 +76,11 @@ CONFIG_SCHEMA = vol.Schema(
             vol.Required("port"): int,
             vol.Required("user"): str,
             vol.Required("password"): str,
-            vol.Optional("discovery"): Any(bool, None),
-            vol.Required("discovery_prefix"): str,
-            vol.Optional("availability_topic"): Any(str, None),
-            vol.Optional("payload_available"): Any(str,None),
-            vol.Optional("payload_not_available"): Any(str, None)
+            vol.Optional("discovery", default = DEFAULT_DISCOVERY): Any(bool, None),
+            vol.Optional("discovery_prefix", default = DEFAULT_DISCOVERY_PREFIX): Any(str, None),
+            vol.Optional("availability_topic", default = DEFAULT_AVAILABILITY_TOPIC): Any(str, None),
+            vol.Optional("payload_available", default = DEFAULT_PAYLOAD_AVAILABLE): Any(str,None),
+            vol.Optional("payload_not_available", default = DEFAULT_PAYLOAD_NOT_AVAILABLE ): Any(str, None)
 
 
         }
@@ -79,36 +88,39 @@ CONFIG_SCHEMA = vol.Schema(
     "doors": [vol.Schema(
         {
             vol.Required("id"): str,
-            vol.Optional("name"): Any(str, None),
+            vol.Optional("name"): Any(str, None), 
             vol.Required("relay"): int,
             vol.Required("state"): int,
-            vol.Optional("open"): int, # need to verify checks
-            vol.Required("state_mode"): Any(None, 'normally_closed', 'normally_open'),
-            vol.Optional("invert_relay"): bool, # need to verify checks
-            vol.Optional("state_topic"): str, # need to verify checks
+            vol.Optional("open"): int,
+            vol.Optional("state_mode", default = DEFAULT_STATE_MODE): Any(None, 'normally_closed', 'normally_open'),
+            vol.Optional("invert_relay", default = DEFAULT_INVERT_RELAY): bool,
+            vol.Optional("state_topic"): str,
             vol.Required("command_topic"): str
         }
     )]
     })
+
 
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 CONFIG = CONFIG_SCHEMA(file_CONFIG)
 print ("Config suceesfully validated against schema")
-print(json.dumps(CONFIG, indent = 4))
+print(json.dumps(
+    CONFIG, indent = 4))
 
 ### SETUP MQTT ###
 user = CONFIG['mqtt']['user']
 password = CONFIG['mqtt']['password']
 host = CONFIG['mqtt']['host']
 port = int(CONFIG['mqtt']['port'])
-discovery = bool(CONFIG['mqtt'].get('discovery'))
+if CONFIG['mqtt']['discovery'] is None:
+    discovery = DEFAULT_DISCOVERY
+else:
+    discovery = CONFIG['mqtt']['discovery']
 
-if 'discovery_prefix' not in CONFIG['mqtt']:
-    discovery_prefix = 'homeassistant'
-elif CONFIG['mqtt']['discovery_prefix'] is None:
-    discovery_prefix = 'homeassistant'
+if CONFIG['mqtt']['discovery_prefix'] is None:
+    discovery_prefix = DEFAULT_DISCOVERY_PREFIX
 else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
     
@@ -116,24 +128,19 @@ else:
 # if availability values specified in config use them
 # if not use defaults 
 #
-if 'availability_topic' not in CONFIG['mqtt']:
-    availability_topic = discovery_prefix + '/cover' + '/availability'
-elif CONFIG['mqtt']['availability_topic'] is None:
-    availability_topic = discovery_prefix + '/cover' + '/availability'
+
+if CONFIG['mqtt']['availability_topic'] is None:
+    availability_topic = discovery_prefix + DEFAULT_AVAILABILITY_TOPIC
 else:
     availability_topic = CONFIG['mqtt']['availability_topic']
 
-if 'payload_available' not in CONFIG['mqtt']:
-    payload_available = 'online'
-elif CONFIG['mqtt']['payload_available'] is None:
-    payload_available = 'online'
+if CONFIG['mqtt']['payload_available'] is None:
+    payload_available = DEFAULT_PAYLOAD_AVAILABLE
 else:
     payload_available = CONFIG['mqtt']['payload_available']
 
-if 'payload_not_available' not in CONFIG['mqtt']:
-    payload_not_available = 'offline'
-elif CONFIG['mqtt']['payload_not_available'] is None:
-    payload_not_available = 'offline'
+if CONFIG['mqtt']['payload_not_available'] is None:
+    payload_not_available = DEFAULT_PAYLOAD_NOT_AVAILABLE
 else:
     payload_not_available = CONFIG['mqtt']['payload_not_available']
 
@@ -188,7 +195,7 @@ if __name__ == "__main__":
         # The interface is the same.  The two switch garage door
         # reports the states "open" and "closed"
         #
-        if "open" in doorCfg:
+        if "open" in doorCfg and doorCfg["open"] is not None:
             door = TwoSwitchGarageDoor(doorCfg)
         else:
             door = GarageDoor(doorCfg)
