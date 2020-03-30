@@ -130,7 +130,7 @@ else:
 #
 
 if CONFIG['mqtt']['availability_topic'] is None:
-    availability_topic = discovery_prefix + DEFAULT_AVAILABILITY_TOPIC
+    availability_topic = DEFAULT_AVAILABILITY_TOPIC
 else:
     availability_topic = CONFIG['mqtt']['availability_topic']
 
