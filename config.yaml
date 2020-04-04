@@ -1,5 +1,5 @@
 logging:
-    log_level: DEBUG
+    log_level: INFO
     show_timestamp: true
 mqtt:
     host: mqtt.thegrays.duckdns.org
