@@ -3,6 +3,8 @@
 2. Added code to update the mqtt availability topic to inform subscribers when the app is offline.
 3. Added support for opening and closing states for garage doors (requires a second switch for the open position)
 4. Added validation of config.yaml via voluptuous.
+5. Replaced print statements with logging.
+6. Added Dockerfile and uploaded image to repository https://hub.docker.com/repository/docker/bg1000/garageqtpi
 
 ## How to enable the changes
 1. If using mqtt discovery the availability topics will be automatically created and updated with default values.  You can also overide the default values by adding lines for the availability topic and payloads to the mqtt section of the config file, for example:
