@@ -1,6 +1,6 @@
 logging:
-  log_level: INFO
-  show_timestamp: true
+    log_level: DEBUG
+    show_timestamp: true
 mqtt:
     host: mqtt.thegrays.duckdns.org
     port: 1883

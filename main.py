@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import random
 import yaml
@@ -20,7 +21,7 @@ DEFAULT_PAYLOAD_NOT_AVAILABLE ="offline"
 DEFAULT_STATE_MODE = "normally_open"
 DEFAULT_INVERT_RELAY = False
 
-logging.info("GarageQTPi starting")
+print("GarageQTPi starting")
 discovery_info = {}
 
 # Update the mqtt state topic
@@ -108,7 +109,6 @@ CONFIG_SCHEMA = vol.Schema(
     )]
     })
 
-
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
@@ -120,7 +120,8 @@ if CONFIG['logging']['show_timestamp']:
     logging.basicConfig(format='%(asctime)s %(message)s',level=CONFIG["logging"]["log_level"])
 else:
     logging.basicConfig(level=CONFIG["logging"]["log_level"])
-logging.info ("Config suceesfully validated against schema")
+
+logging.info ("Config sucessfully validated against schema")
 logging.info (json.dumps(CONFIG, indent = 4))
 
 ### SETUP MQTT ###
