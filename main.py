@@ -5,6 +5,7 @@ import paho.mqtt.client as mqtt
 import paho.mqtt
 import re
 import json
+import logging
 import voluptuous as vol
 from voluptuous import Any
 
@@ -19,14 +20,14 @@ DEFAULT_PAYLOAD_NOT_AVAILABLE ="offline"
 DEFAULT_STATE_MODE = "normally_open"
 DEFAULT_INVERT_RELAY = False
 
-print("Welcome to GarageQtPi!")
+logging.info("GarageQTPi starting")
 discovery_info = {}
 
 # Update the mqtt state topic
 
 
 def update_state(value, topic):
-    print("State change triggered: %s -> %s" % (topic, value))
+    logging.info("State change triggered: %s -> %s" % (topic, value))
 
     client.publish(topic, value, retain=True)
 
@@ -34,11 +35,11 @@ def update_state(value, topic):
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code: %s" % mqtt.connack_string(rc))
+    logging.info("Connected with result code: %s" % mqtt.connack_string(rc))
     # notify subscribed clients that we are available
     client.publish(availability_topic, payload_available, retain=True)
 
-    print(
+    logging.info(
         "Sent payload: '" +
         CONFIG['mqtt']['payload_available'] +
         "' to topic: '" +
@@ -47,7 +48,7 @@ def on_connect(client, userdata, flags, rc):
 
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
-        print("Listening for commands on %s" % command_topic)
+        logging.info("Listening for commands on %s" % command_topic)
         client.subscribe(command_topic)
 
 # Execute the specified command for a door
@@ -58,7 +59,7 @@ def execute_command(door, command):
         doorName = door.name
     except BaseException:
         doorName = door.id
-    print("Executing command %s for door %s" % (command, doorName))
+    logging.info("Executing command %s for door %s" % (command, doorName))
     if command == "OPEN" and door.state == 'closed':
         door.open()
     elif command == "CLOSE" and door.state == 'open':
@@ -66,12 +67,17 @@ def execute_command(door, command):
     elif command == "STOP":
         door.stop()
     else:
-        print("Invalid command: %s" % command)
+        logging.info("Invalid command: %s" % command)
 
 
 
 CONFIG_SCHEMA = vol.Schema(
     {
+    "logging": vol.Schema(
+        {
+            vol.Required("log_level"): Any('DEBUG', 'INFO', 'WARNING','ERROR', 'CRITICAL'),
+            vol.Required("show_timestamp"): bool
+        }),
     "mqtt": vol.Schema(
         {
             vol.Required("host"): str,
@@ -107,9 +113,15 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'
     file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
 CONFIG = CONFIG_SCHEMA(file_CONFIG)
-print ("Config suceesfully validated against schema")
-print(json.dumps(
-    CONFIG, indent = 4))
+#
+# setup logging and then log sucessful configuration validation
+#
+if CONFIG['logging']['show_timestamp']:
+    logging.basicConfig(format='%(asctime)s %(message)s',level=CONFIG["logging"]["log_level"])
+else:
+    logging.basicConfig(level=CONFIG["logging"]["log_level"])
+logging.info ("Config suceesfully validated against schema")
+logging.info (json.dumps(CONFIG, indent = 4))
 
 ### SETUP MQTT ###
 user = CONFIG['mqtt']['user']
@@ -158,7 +170,7 @@ client.username_pw_set(user, password=password)
 # set a last will message so the broker will notify connected clients when
 # we are not available
 client.will_set(availability_topic, payload_not_available, retain=True)
-print(
+logging.info(
     "Set last will message: '" +
     payload_not_available +
     "' for topic: '" +
@@ -237,12 +249,12 @@ if __name__ == "__main__":
                 json.dumps(discovery_info),
                 retain=True)
 
-            print(
+            logging.info(
                 "Sent audodiscovery config: " +
                 json.dumps(
                     discovery_info,
                     indent=4))
-            print("to topic: " + config_topic)
+            logging.info("to topic: " + config_topic)
 
     # Main loop
     client.loop_forever()
