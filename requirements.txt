@@ -2,3 +2,4 @@ paho_mqtt==1.5.0
 PyYAML==5.2
 voluptuous==0.11.7
 RPi.GPIO==0.7.0
+
