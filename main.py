@@ -113,19 +113,19 @@ CONFIG_SCHEMA = vol.Schema(
 # First look for config.yaml in /config which allows us to map a volume
 # when running in docker.  If not there look in the directory the script is 
 # running from. Using print statements here since logging isn't set up yet.
+try:
+    with open('/config/config.yaml', 'r') as ymlfile:
+        file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
+        print("using configuration from /config/config.yaml")
+except FileNotFoundError:
+    print("/config/config.yaml not found. Looking in script directory")
     try:
-        with open('/config/config.yaml', 'r') as ymlfile:
+        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
             file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
-            print("using configuration from /config/config.yaml")
+            print("Using config.yaml from script directory")
     except FileNotFoundError:
-        print("/config/config.yaml not found. Looking in script directory")
-        try:
-            with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
-                file_CONFIG = yaml.load(ymlfile, Loader=yaml.FullLoader)
-                print("Using config.yaml from script directory")
-        except FileNotFoundError:
-            print("No config.yaml found. SensorScanner exiting.")
-            os._exit(1)
+        print("No config.yaml found. SensorScanner exiting.")
+        os._exit(1)
 
 CONFIG = CONFIG_SCHEMA(file_CONFIG)
 #
