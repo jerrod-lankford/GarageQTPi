@@ -28,13 +28,10 @@ class GarageDoor(object):
         # Set relay pin to output, state pin to input, and add a change listener to the state pin
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.relay_pin, GPIO.OUT)
+        # Initial output value = high if self.invert_relay is True
+        GPIO.setup(self.relay_pin, GPIO.OUT, initial=self.invert_relay)
         GPIO.setup(self.state_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(self.state_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
-
-
-        # Set default relay state to false (off)
-        GPIO.output(self.relay_pin, self.invert_relay)
 
     # Release rpi resources
     def __del__(self):
