@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
         # If discovery is enabled publish configuration
         if discovery is True:
-            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '", "availability": "' + availability_topic '"}', retain=True)
+            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '", "availability_topic": "' + availability_topic '"}', retain=True)
 
     # Main loop
     client.loop_forever()
