@@ -15,4 +15,5 @@ doors:
 #        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set"
+        availability_topic: "home-assistant/cover/availability"
 

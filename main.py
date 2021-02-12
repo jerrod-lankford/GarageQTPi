@@ -21,6 +21,7 @@ def on_connect(client, userdata, rc):
         command_topic = config['command_topic']
         print "Listening for commands on %s" % command_topic
         client.subscribe(command_topic)
+        client.publish(config['availability_topic'], 'online', retain=True)
 
 # Execute the specified command for a door
 def execute_command(door, command):
@@ -57,6 +58,16 @@ client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6
 client.on_connect = on_connect
 
 client.username_pw_set(user, password=password)
+
+#Loop through each door and set the LWT (LWT must come before .connect call per paho docs)
+for doorCfg in CONFIG['doors']:
+    if discovery is True:
+        base_topic = discovery_prefix + "/cover/" + doorCfg['id']
+        doorCfg['availability_topic'] = base_topic + "/availability"
+
+    availability_topic = doorCfg['availability_topic']
+    client.will_set(availability_topic, 'offline', retain=True)
+
 client.connect(host, port, 60)
 ### SETUP END ###
 
@@ -77,10 +88,11 @@ if __name__ == "__main__":
             config_topic = base_topic + "/config"
             doorCfg['command_topic'] = base_topic + "/set"
             doorCfg['state_topic'] = base_topic + "/state"
-        
+            doorCfg['availability_topic'] = base_topic + "/availability"
+
         command_topic = doorCfg['command_topic']
         state_topic = doorCfg['state_topic']
-
+        availability_topic = doorCfg['availability_topic']
 
         door = GarageDoor(doorCfg)
 
@@ -102,7 +114,7 @@ if __name__ == "__main__":
 
         # If discovery is enabled publish configuration
         if discovery is True:
-            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '"}', retain=True)
+            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '", "availability": "' + availability_topic '"}', retain=True)
 
     # Main loop
     client.loop_forever()
