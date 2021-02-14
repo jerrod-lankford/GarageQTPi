@@ -4,11 +4,12 @@
 3. Added support for opening and closing states for garage doors (requires a second switch for the open position)
 4. Added validation of config.yaml via voluptuous.
 5. Replaced print statements with logging.
-6. Added Dockerfile and uploaded image to repository https://hub.docker.com/repository/docker/bg1000/garageqtpi
+6. Added Dockerfile
+
 
 ## How to enable the changes
 1. If using mqtt discovery the availability topics will be automatically created and updated with default values.  You can also overide the default values by adding lines for the availability topic and payloads to the mqtt section of the config file, for example:
-```
+```yaml
 mqtt:
     host: xxx.xx.x.xx
     port: 1883
@@ -20,8 +21,8 @@ mqtt:
     payload_available: online
     payload_not_available: offline
 ```
-2. Getting opening & closing states to display requires the addition of a switch to detect the fully open position for each door.  I had trouble mounting a normal magnetic reed switch for this and used one of these instead - https://www.amazon.com/gp/product/B073SP7SXS/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1. After the switch is mounted you enable opening and closing functionality by adding an open line to the door config section, for example.
-```
+2. Getting opening & closing states to display requires the addition of a switch to detect the fully open position for each door.  I had trouble mounting a normal magnetic reed switch for this and used one of [these](https://www.amazon.com/gp/product/B073SP7SXS/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1) instead. After the switch is mounted you enable opening and closing functionality by adding an open line to the door config section, for example.
+```yaml
 doors:
     -
         id:  'garage_door'
@@ -34,10 +35,9 @@ doors:
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set
 ```
-If you do not add this open line (whether you installed the switch or not) GarageQTPi will operate in standard open/close mode.
-     
-        
+If you do not add this open line (whether you installed the switch or not) GarageQTPi will operate in standard open/close mode.    
 
+---
 
 ## What is GarageQTPi
 
