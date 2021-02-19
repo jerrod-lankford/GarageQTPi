@@ -23,6 +23,10 @@ def on_connect(client, userdata, rc):
         print("Listening for commands on %s" % command_topic)
         client.subscribe(command_topic)
 
+        # Update current door state in case the state changed while disconnected
+        for door in garage_doors:
+            client.publish(door.state_topic, door.state, retain=True)
+
     # Update availability
     client.publish(availability_topic, payload="online", retain=True)
 
@@ -73,6 +77,8 @@ client.will_set(availability_topic, payload="offline", retain=True)
 
 client.connect(host, port, 60)
 
+garage_doors = []  # list of GarageDoor instances
+
 ### SETUP END ###
 
 ### MAIN LOOP ###
@@ -97,6 +103,9 @@ if __name__ == "__main__":
         state_topic = doorCfg['state_topic']
 
         door = GarageDoor(doorCfg)
+        # Save topics to door instance.
+        door.command_topic = command_topic
+        door.state_topic = state_topic
 
         # Callback per door that passes a reference to the door
         def on_message(client, userdata, msg, door=door):
@@ -113,6 +122,9 @@ if __name__ == "__main__":
 
         # Publish initial door state
         client.publish(state_topic, door.state, retain=True)
+
+        # Add door instance to garage_doors list
+        garage_doors.append(door)
 
         # If discovery is enabled publish configuration
         if discovery is True:
