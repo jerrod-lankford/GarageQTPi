@@ -3,24 +3,32 @@ import binascii
 import yaml
 import paho.mqtt.client as mqtt
 import re
+import socket
 
 from lib.garage import GarageDoor
 
-print "Welcome to GarageBerryPi!"
+print("Welcome to GarageBerryPi!")
 
 # Update the mqtt state topic
 def update_state(value, topic):
-    print "State change triggered: %s -> %s" % (topic, value)
+    print("State change triggered: %s -> %s" % (topic, value))
 
     client.publish(topic, value, retain=True)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
-    print "Connected with result code: %s" % mqtt.connack_string(rc)
+    print("Connected with result code: %s" % mqtt.connack_string(rc))
     for config in CONFIG['doors']:
         command_topic = config['command_topic']
-        print "Listening for commands on %s" % command_topic
+        print("Listening for commands on %s" % command_topic)
         client.subscribe(command_topic)
+
+        # Update current door state in case the state changed while disconnected
+        for door in garage_doors:
+            client.publish(door.state_topic, door.state, retain=True)
+
+    # Update availability
+    client.publish(availability_topic, payload="online", retain=True)
 
 # Execute the specified command for a door
 def execute_command(door, command):
@@ -28,7 +36,7 @@ def execute_command(door, command):
         doorName = door.name
     except:
         doorName = door.id
-    print "Executing command %s for door %s" % (command, doorName)
+    print("Executing command %s for door %s" % (command, doorName))
     if command == "OPEN" and door.state == 'closed':
         door.open()
     elif command == "CLOSE" and door.state == 'open':
@@ -36,7 +44,7 @@ def execute_command(door, command):
     elif command == "STOP":
         door.stop()
     else:
-        print "Invalid command: %s" % command
+        print("Invalid command: %s" % command)
 
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     CONFIG = yaml.load(ymlfile)
@@ -52,12 +60,25 @@ if 'discovery_prefix' not in CONFIG['mqtt']:
 else:
     discovery_prefix = CONFIG['mqtt']['discovery_prefix']
 
-client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=4)
+if 'device' not in CONFIG['mqtt']:
+     device = socket.gethostname()
+else:
+    device = CONFIG['mqtt']['device']
+availability_topic = '/'.join([discovery_prefix, device])
+
+client = mqtt.Client(client_id="MQTTGarageDoor_" + binascii.b2a_hex(os.urandom(6)), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
 
 client.on_connect = on_connect
 
 client.username_pw_set(user, password=password)
+
+# Setup Last Will message to clear config
+client.will_set(availability_topic, payload="offline", retain=True)
+
 client.connect(host, port, 60)
+
+garage_doors = []  # list of GarageDoor instances
+
 ### SETUP END ###
 
 ### MAIN LOOP ###
@@ -65,7 +86,7 @@ if __name__ == "__main__":
     # Create door objects and create callback functions
     for doorCfg in CONFIG['doors']:
 
-        # If no name it set, then set to id
+        # If no name is set, then set to id
         if not doorCfg['name']:
             doorCfg['name'] = doorCfg['id']
 
@@ -77,12 +98,14 @@ if __name__ == "__main__":
             config_topic = base_topic + "/config"
             doorCfg['command_topic'] = base_topic + "/set"
             doorCfg['state_topic'] = base_topic + "/state"
-        
+
         command_topic = doorCfg['command_topic']
         state_topic = doorCfg['state_topic']
 
-
         door = GarageDoor(doorCfg)
+        # Save topics to door instance.
+        door.command_topic = command_topic
+        door.state_topic = state_topic
 
         # Callback per door that passes a reference to the door
         def on_message(client, userdata, msg, door=door):
@@ -100,9 +123,17 @@ if __name__ == "__main__":
         # Publish initial door state
         client.publish(state_topic, door.state, retain=True)
 
+        # Add door instance to garage_doors list
+        garage_doors.append(door)
+
         # If discovery is enabled publish configuration
         if discovery is True:
-            client.publish(config_topic,'{"name": "' + doorCfg['name'] + '", "command_topic": "' + command_topic + '", "state_topic": "' + state_topic + '"}', retain=True)
+            config_line = '{"name": "' + doorCfg['name'] + \
+                          '", "command_topic": "' + command_topic + \
+                          '", "state_topic": "' + state_topic + \
+                          '", "availability_topic": "' + availability_topic + \
+                          '"}'
+            client.publish(config_topic, config_line, retain=True)
 
     # Main loop
     client.loop_forever()
