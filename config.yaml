@@ -5,6 +5,7 @@ mqtt:
     password: 
 #    discovery: true #defaults to false, uncomment to enable home-assistant discovery
 #    discovery_prefix: homeassistant #change to match with setting of home-assistant
+#    device: single_garage #Unique name for device availability, default = system hostname
 doors:
     -
         id: 
