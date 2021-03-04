@@ -5,6 +5,10 @@
 4. Added validation of config.yaml via voluptuous.
 5. Replaced print statements with logging.
 6. Added Dockerfile
+7. PR #6 (@craiginTx) Set initial state of output pin on startup
+8. PR #7 (@craiginTx) Update door status after reconnect. 
+
+
 
 
 ## How to enable the changes
