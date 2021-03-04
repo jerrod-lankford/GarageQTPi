@@ -23,6 +23,7 @@ DEFAULT_INVERT_RELAY = False
 
 print("GarageQTPi starting")
 discovery_info = {}
+garage_doors = []
 
 # Update the mqtt state topic
 
@@ -51,6 +52,10 @@ def on_connect(client, userdata, flags, rc):
         command_topic = config['command_topic']
         logging.info("Listening for commands on %s" % command_topic)
         client.subscribe(command_topic)
+
+    # Update each door state in case it changed while disconnected.
+    for door in garage_doors:
+        client.publish(door.state_topic, door.state, retain=True)
 
 # Execute the specified command for a door
 
@@ -249,6 +254,11 @@ if __name__ == "__main__":
 
         # Publish initial door state
         client.publish(state_topic, door.state, retain=True)
+
+        # Store Garage Door instance for use on reconnect
+        door.state_topic = state_topic
+        door.command_topic = command_topic
+        garage_doors.append(door)
 
         # If discovery is enabled publish configuration
         if discovery is True:
