@@ -40,7 +40,6 @@ def execute_command(door, command):
     else:
         print("Invalid command: %s" % command)
 
-
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml'), 'r') as ymlfile:
     CONFIG = yaml.safe_load(ymlfile)
 

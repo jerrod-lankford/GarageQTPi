@@ -7,7 +7,7 @@ Type=simple
 Restart=always
 RestartSec=3
 User=%i
-ExecStart=/usr/bin/python -u /home/pi/GarageQTPi/main.py
+ExecStart=/home/pi/GarageQTPi/venv/bin/python3.9 -u /home/pi/GarageQTPi/main.py
 
 [Install]
 WantedBy=multi-user.target
