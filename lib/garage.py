@@ -1,17 +1,17 @@
 import time
 import RPi.GPIO as GPIO
-from eventhook import EventHook
+from lib.eventhook import EventHook
 
 
 SHORT_WAIT = .2 #S (200ms)
 """
-    The purpose of this class is to map the idea of a garage door to the pinouts on 
+    The purpose of this class is to map the idea of a garage door to the pinouts on
     the raspberrypi. It provides methods to control the garage door and also provides
     and event hook to notify you of the state change. It also doesn't maintain any
     state internally but rather relies directly on reading the pin.
 """
 class GarageDoor(object):
-    
+
     def __init__(self, config):
 
         # Config
@@ -31,6 +31,10 @@ class GarageDoor(object):
         GPIO.setup(self.relay_pin, GPIO.OUT, initial=self.invert_relay)
         GPIO.setup(self.state_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(self.state_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
+
+
+        # Set default relay state to false (off)
+        #GPIO.output(self.relay_pin, self.invert_relay)
 
     # Release rpi resources
     def __del__(self):
@@ -68,7 +72,7 @@ class GarageDoor(object):
         time.sleep(SHORT_WAIT)
         GPIO.output(self.relay_pin, self.invert_relay)
 
-   
+
     # Provide an event for when the state pin changes
     def __stateChanged(self, channel):
         if channel == self.state_pin:
@@ -76,4 +80,3 @@ class GarageDoor(object):
             # after a statechange and then grab the state
             time.sleep(SHORT_WAIT)
             self.onStateChange.fire(self.state)
-
