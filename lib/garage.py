@@ -2,8 +2,10 @@ import time
 import RPi.GPIO as GPIO
 from lib.eventhook import EventHook
 
+# S (200ms)
+SHORT_WAIT = .2
 
-SHORT_WAIT = .2 #S (200ms)
+
 """
     The purpose of this class is to map the idea of a garage door to the pinouts on
     the raspberrypi. It provides methods to control the garage door and also provides
@@ -30,11 +32,7 @@ class GarageDoor(object):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.relay_pin, GPIO.OUT, initial=self.invert_relay)
         GPIO.setup(self.state_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.state_pin, GPIO.BOTH, callback=self.__stateChanged, bouncetime=300)
-
-
-        # Set default relay state to false (off)
-        #GPIO.output(self.relay_pin, self.invert_relay)
+        GPIO.add_event_detect(self.state_pin, GPIO.BOTH, callback=self.__state_changed, bouncetime=300)
 
     # Release rpi resources
     def __del__(self):
@@ -58,8 +56,8 @@ class GarageDoor(object):
     # State is a read only property that actually gets its value from the pin
     @property
     def state(self):
-        # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally closed and the state is 1 then the circuit is closed.
-        # and vice versa for normally open
+        # Read the mode from the config. Then compare the mode to the current state. IE. If the circuit is normally
+        # closed and the state is 1 then the circuit is closed and vice versa for normally open
         state = GPIO.input(self.state_pin)
         if  state == self.mode:
             return 'closed'
@@ -72,9 +70,8 @@ class GarageDoor(object):
         time.sleep(SHORT_WAIT)
         GPIO.output(self.relay_pin, self.invert_relay)
 
-
     # Provide an event for when the state pin changes
-    def __stateChanged(self, channel):
+    def __state_changed(self, channel):
         if channel == self.state_pin:
             # Had some issues getting an accurate value so we are going to wait for a short timeout
             # after a statechange and then grab the state
