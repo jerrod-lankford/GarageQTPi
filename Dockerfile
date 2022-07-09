@@ -1,5 +1,5 @@
 # Python Base Image from https://hub.docker.com/r/arm32v7/python/
-FROM arm32v7/python:3.8.1-buster
+FROM arm32v7/python:3.10.5-buster
 
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
