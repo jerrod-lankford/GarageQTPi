@@ -1,5 +1,5 @@
 logging:
-    log_level: INFO
+    log_level: DEBUG
     show_timestamp: true
 mqtt:
     host: mqtt.thegrays.duckdns.org
@@ -23,4 +23,5 @@ doors:
 #        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
         state_topic: "home-assistant/cover"
         command_topic: "home-assistant/cover/set"
+        poll_delay: 20 # seconds
 

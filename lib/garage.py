@@ -2,7 +2,7 @@ import time
 import RPi.GPIO as GPIO
 from .eventhook import EventHook
 
-
+READ_DELAY = 0.5 # S (500ms)
 SHORT_WAIT = .2  # S (200ms)
 """
     The purpose of this class is to map the idea of a garage door to the pinouts on
@@ -22,6 +22,7 @@ class GarageDoor(object):
         self.id = config['id']
         self.mode = int(config.get('state_mode') == 'normally_closed')
         self.invert_relay = bool(config.get('invert_relay'))
+        self._poll_delay = config['poll_delay']
 
         # Setup
         self._state = None
@@ -69,6 +70,14 @@ class GarageDoor(object):
             return 'closed'
         else:
             return 'open'
+    @property
+    def poll_delay(self):
+        """ Used to start a timer that will poll the door state X seconds after a commend is received. """
+        return self._poll_delay
+    
+    @poll_delay.setter
+    def poll_delay(self, new_poll_delay):
+        self._poll_delay = new_poll_delay
 
     # Mimick a button press by switching the GPIO pin on and off quickly
     def __press(self):
@@ -82,8 +91,9 @@ class GarageDoor(object):
         if channel == self.state_pin:
             # Had some issues getting an accurate value so we are going to wait for a short timeout
             # after a statechange and then grab the state
-            time.sleep(SHORT_WAIT)
+            time.sleep(READ_DELAY)
             self.onStateChange.fire(self.state)
+
 
 #
 # This class inherits from GarageDoor and make use of a second (open) switch
@@ -132,5 +142,5 @@ class TwoSwitchGarageDoor(GarageDoor):
         if channel == self.state_pin or channel == self.open_pin:
             # Had some issues getting an accurate value so we are going to wait for a short timeout
             # after a statechange and then grab the state
-            time.sleep(SHORT_WAIT)
+            time.sleep(READ_DELAY)
             self.onStateChange.fire(self.state)
