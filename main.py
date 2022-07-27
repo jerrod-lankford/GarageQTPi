@@ -67,10 +67,11 @@ def execute_command(door, command):
     except BaseException:
         doorName = door.id
     logging.info("Executing command %s for door %s" % (command, doorName))
-    logging.info("Starting polling thread.")
-    # Set up a timer thread for polling the door
-    poller[doorCfg['name']] = threading.Timer(door.poll_delay, poll, [door, command_topic])
-    poller[doorName].start()
+    if door.poll_delay > 0:
+        logging.info("Starting polling thread.")
+        # Set up a timer thread for polling the door
+        poller[doorCfg['name']] = threading.Timer(door.poll_delay, poll, [door, command_topic])
+        poller[doorName].start()
 
     if command == "OPEN" and door.state == 'closed':
         door.open()
@@ -195,7 +196,7 @@ for doorCfg in config.get_section('doors'):
         discovery_info["availability_topic"] = availability_topic
         discovery_info["payload_available"] = payload_available
         discovery_info["payload_not_available"] = payload_not_available
-
+        discovery_info["unique_id"] = doorCfg['uuid']
         client.publish(
             config_topic,
             json.dumps(discovery_info),

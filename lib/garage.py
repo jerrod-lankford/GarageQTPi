@@ -2,8 +2,8 @@ import time
 import RPi.GPIO as GPIO
 from .eventhook import EventHook
 
-READ_DELAY = 0.5 # S (500ms)
-SHORT_WAIT = .2  # S (200ms)
+
+
 """
     The purpose of this class is to map the idea of a garage door to the pinouts on
     the raspberrypi. It provides methods to control the garage door and also provides
@@ -22,7 +22,10 @@ class GarageDoor(object):
         self.id = config['id']
         self.mode = int(config.get('state_mode') == 'normally_closed')
         self.invert_relay = bool(config.get('invert_relay'))
-        self._poll_delay = config['poll_delay']
+        self.poll_delay = config['poll_delay']
+        self.press_time = config['press_time']
+        self.read_delay = config['read_delay']
+        self.switch_debounce = config['switch_debounce']
 
         # Setup
         self._state = None
@@ -39,7 +42,7 @@ class GarageDoor(object):
             self.state_pin,
             GPIO.BOTH,
             callback=self.__stateChanged,
-            bouncetime=300)
+            bouncetime=self.switch_debounce)
 
     # Release rpi resources
     def __del__(self):
@@ -70,19 +73,11 @@ class GarageDoor(object):
             return 'closed'
         else:
             return 'open'
-    @property
-    def poll_delay(self):
-        """ Used to start a timer that will poll the door state X seconds after a commend is received. """
-        return self._poll_delay
-    
-    @poll_delay.setter
-    def poll_delay(self, new_poll_delay):
-        self._poll_delay = new_poll_delay
 
     # Mimick a button press by switching the GPIO pin on and off quickly
     def __press(self):
         GPIO.output(self.relay_pin, not self.invert_relay)
-        time.sleep(SHORT_WAIT)
+        time.sleep(self.press_time)
         GPIO.output(self.relay_pin, self.invert_relay)
 
     # Provide an event for when the state pin changes
@@ -91,7 +86,7 @@ class GarageDoor(object):
         if channel == self.state_pin:
             # Had some issues getting an accurate value so we are going to wait for a short timeout
             # after a statechange and then grab the state
-            time.sleep(READ_DELAY)
+            time.sleep(self.read_delay)
             self.onStateChange.fire(self.state)
 
 
@@ -142,5 +137,5 @@ class TwoSwitchGarageDoor(GarageDoor):
         if channel == self.state_pin or channel == self.open_pin:
             # Had some issues getting an accurate value so we are going to wait for a short timeout
             # after a statechange and then grab the state
-            time.sleep(READ_DELAY)
+            time.sleep(self.read_delay)
             self.onStateChange.fire(self.state)

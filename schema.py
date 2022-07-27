@@ -8,6 +8,10 @@ DEFAULT_PAYLOAD_AVAILABLE = "online"
 DEFAULT_PAYLOAD_NOT_AVAILABLE ="offline"
 DEFAULT_STATE_MODE = "normally_open"
 DEFAULT_INVERT_RELAY = False
+DEFAULT_POLL_DELAY = 0
+DEFAULT_PRESS_TIME = 0.2
+DEFAULT_READ_DELAY = 0.5
+DEFAULT_SWITCH_DEBOUNCE = 300
 
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -34,6 +38,7 @@ CONFIG_SCHEMA = vol.Schema(
     "doors": [vol.Schema(
         {
             vol.Required("id"): str,
+            vol.Optional("uuid"): Any(str, None),
             vol.Optional("name"): Any(str, None), 
             vol.Required("relay"): int,
             vol.Required("state"): int,
@@ -42,7 +47,12 @@ CONFIG_SCHEMA = vol.Schema(
             vol.Optional("invert_relay", default = DEFAULT_INVERT_RELAY): bool,
             vol.Optional("state_topic"): str,
             vol.Required("command_topic"): str,
-            vol.Required("poll_delay"): int
+            vol.Optional("poll_delay", default=DEFAULT_POLL_DELAY): int,
+            vol.Optional("press_time", default=DEFAULT_PRESS_TIME): float,
+            vol.Optional("read_delay", default=DEFAULT_READ_DELAY): float,
+            vol.Optional("switch_debounce", default=DEFAULT_SWITCH_DEBOUNCE): int
+
         }
     )]
     })
+
