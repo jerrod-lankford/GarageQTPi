@@ -7,6 +7,11 @@
 6. Added Dockerfile
 7. PR #6 ([craiginTx](https://github.com/craiginTx)) Set initial state of output pin on startup
 8. PR #7 ([craiginTx](https://github.com/craiginTx)) Update door status after reconnect. 
+9. PR #9 When mqtt discovery is true automatically generate unique_id and store in config file.
+10. PR #9 Add optional door parameter *press_time*. This is the amount of time the 'button' is pressed (in seconds). Default is 0.2.
+11. PR #9 Add optional door parameter *read_delay*. This is the amount of time to wait after a state change to take a reading. Default is  0.5.
+12. PR #9 Add optional door parameter *switch_debounce*. This is the debounce time passed to RPiGPIO. in ms. Default is 300.
+13. PR #9 Add optional door parameter *poll_time*. This is the amount of seconds to wait after a state change to poll the switch and log the result. This is for debuggung only. Default is 0 (disabled).
 
 
 
