@@ -1,3 +1,53 @@
+## Summary of Changes included in this fork of GarageQTPi
+1. Upgrades python to version 3 and updates versions of libraries in requirements.txt
+2. Added code to update the mqtt availability topic to inform subscribers when the app is offline.
+3. Added support for opening and closing states for garage doors (requires a second switch for the open position)
+4. Added validation of config.yaml via voluptuous.
+5. Replaced print statements with logging.
+6. Added Dockerfile
+7. PR #6 ([craiginTx](https://github.com/craiginTx)) Set initial state of output pin on startup
+8. PR #7 ([craiginTx](https://github.com/craiginTx)) Update door status after reconnect. 
+9. PR #9 When mqtt discovery is true automatically generate unique_id and store in config file.
+10. PR #9 Add optional door parameter *press_time*. This is the amount of time the 'button' is pressed (in seconds). Default is 0.2.
+11. PR #9 Add optional door parameter *read_delay*. This is the amount of time to wait after a state change to take a reading. Default is  0.5.
+12. PR #9 Add optional door parameter *switch_debounce*. This is the debounce time passed to RPiGPIO. in ms. Default is 300.
+13. PR #9 Add optional door parameter *poll_time*. This is the amount of seconds to wait after a state change to poll the switch and log the result. This is for debuggung only. Default is 0 (disabled).
+
+
+
+
+## How to enable the changes
+1. If using mqtt discovery the availability topics will be automatically created and updated with default values.  You can also overide the default values by adding lines for the availability topic and payloads to the mqtt section of the config file, for example:
+```yaml
+mqtt:
+    host: xxx.xx.x.xx
+    port: 1883
+    user: "" 
+    password: "" 
+    discovery: true #defaults to false, uncomment to enable home-assistant discovery
+    discovery_prefix: homeassistant #change to match with setting of home-assistant
+    availability_topic: home-assistant/cover/availabilty
+    payload_available: online
+    payload_not_available: offline
+```
+2. Getting opening & closing states to display requires the addition of a switch to detect the fully open position for each door.  I had trouble mounting a normal magnetic reed switch for this and used one of [these](https://www.amazon.com/gp/product/B073SP7SXS/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1) instead. After the switch is mounted you enable opening and closing functionality by adding an open line to the door config section, for example.
+```yaml
+doors:
+    -
+        id:  'garage_door'
+        name: #garage_door
+        relay: 21 
+        state: 12
+        open: 7
+        state_mode: normally_closed #defaults to normally open, uncomment to switch
+#        invert_relay: true #defaults to false, uncomment to turn relay pin on by default
+        state_topic: "home-assistant/cover"
+        command_topic: "home-assistant/cover/set
+```
+If you do not add this open line (whether you installed the switch or not) GarageQTPi will operate in standard open/close mode.    
+
+---
+
 ## What is GarageQTPi
 
 GarageQTPi is an implementation that provides methods to communicate with a Raspberry Pi garage door opener via the MQTT protocol.
@@ -136,8 +186,15 @@ doors:
 ```
 
 ### Optional configuration
-There are five optional configuration parameters.  
-Two of the option parameters are for mqtt.  One is to enable discovery by HomeAssistant. The second one changes the discovery prefix for HomeAssitant.
+There are eight optional configuration parameters.  
+Five of the option parameters are for mqtt.  One is to enable discovery by HomeAssistant. The second one changes the discovery prefix for HomeAssitant. The other three allow you to set the availability topic, payload for available and payload for not available.  Note these three parameters have the following default values:
+```
+    availability_topic: discovery_prefix + '/cover/availabilty'
+    payload_available: online (same as home assistant default)
+    payload_not_available: offline (same as home assistant default)
+
+```
+### Full mqtt configuration with optional parameters
 ```
 mqtt:
     host: m10.cloudmqtt.com
@@ -146,12 +203,15 @@ mqtt:
     password: *
     discovery: true
     discovery_prefix: 'homeassistant'
+    availability_topic: home-assistant/cover/availabilty
+    payload_available: online
+    payload_not_available: offline
 ```
 
 The discovery parameter defaults to false and should be set to true to enable discovery by HomeAssistant. If set to true, the door state_topic and command_topic parameters are not necessary and are ignored.  
 The discovery_prefix parameter defaults to 'homeassistant' and shouldn't be changed unless changed in HomeAssistant
 
-The other three of the option parameters are for the doors. One to give the door a name for discovery.  The second one to flip the state pin of the magnetic switch in the invent of a different wiring schema. The third one to filp the relay logic.  This is a per door configuration option like:
+The other three of the option parameters are for the doors. One gives the door a name for discovery.  The second one to flip the state pin of the magnetic switch in the invent of a different wiring schema. The third one to filp the relay logic.  This is a per door configuration option like:
 ```
 doors:
     -
@@ -163,6 +223,7 @@ doors:
         invert_relay: true
         state_topic: "home-assistant/cover/left"
         command_topic: "home-assistant/cover/left/set"
+
 ```
 
 The name parameter defaults to the unsanitized id parameter  
